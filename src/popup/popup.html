@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi Tool Hub</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-header">
+    <div class="brand">
+      <div class="brand-icon">⚡</div>
+      <div class="brand-text">
+        <h1>Multi Tool Hub</h1>
+        <span>Tiện ích đa năng</span>
+      </div>
+    </div>
+    <div class="version">v2.0</div>
+  </div>
+
+  <div id="app-container">
+    <!-- Content injected by popup.js -->
+  </div>
+
+  <!-- Shared utilities -->
+  <script src="../core/constants.js"></script>
+  <script src="../core/utils.js"></script>
+
+  <!-- Feature modules -->
+  <script src="../features/dtu-rating/dtu-rating.js"></script>
+  <script src="../features/studocu/studocu.js"></script>
+
+  <!-- Router -->
+  <script src="popup.js"></script>
+</body>
+</html>

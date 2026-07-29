@@ -1,0 +1,419 @@
+/* ============================================
+   Multi Tool Hub - Popup Styles
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+  /* DTU Theme */
+  --dtu-red: #d52b1e;
+  --dtu-red-dark: #b82419;
+  --dtu-red-light: rgba(213, 43, 30, 0.1);
+
+  /* Studocu Theme */
+  --stu-orange: #FF6B00;
+  --stu-yellow: #FFB000;
+  --stu-light: #FFF8EB;
+  --stu-dark: #3E1F00;
+
+  /* Shared */
+  --surface: #FFFFFF;
+  --bg: #f5f5f5;
+  --text: #333333;
+  --text-muted: #8E7058;
+  --border: #e0e0e0;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  width: 340px;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+/* ---------- Header ---------- */
+.popup-header {
+  background: var(--surface);
+  padding: 14px 16px;
+  border-bottom: 2px dashed #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.popup-header .brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.popup-header .brand-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--dtu-red), var(--stu-orange));
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.popup-header .brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.popup-header .brand-text h1 {
+  font-size: 16px;
+  font-weight: 800;
+  margin: 0;
+  background: linear-gradient(90deg, var(--dtu-red), var(--stu-orange));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.3px;
+}
+
+.popup-header .brand-text span {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.popup-header .version {
+  font-size: 10px;
+  font-weight: 700;
+  color: #aaa;
+  background: #f0f0f0;
+  padding: 3px 8px;
+  border-radius: 20px;
+}
+
+/* ---------- Container ---------- */
+#app-container {
+  padding: 14px;
+  min-height: 280px;
+}
+
+/* ---------- Feature Cards (Home) ---------- */
+.feature-card {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  text-align: left;
+  background: var(--surface);
+  margin-bottom: 10px;
+  box-shadow: var(--shadow);
+}
+
+.feature-card:active {
+  transform: scale(0.97);
+}
+
+.feature-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+.feature-card .icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 14px;
+  flex-shrink: 0;
+  font-size: 20px;
+}
+
+.feature-card.dtu .icon-box {
+  background: linear-gradient(135deg, var(--dtu-red), #ff6b6b);
+  color: white;
+}
+
+.feature-card.studocu .icon-box {
+  background: linear-gradient(135deg, var(--stu-orange), var(--stu-yellow));
+  color: white;
+}
+
+.feature-card .info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.feature-card .info .title {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 2px;
+  color: var(--text);
+}
+
+.feature-card .info .desc {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.feature-card .arrow {
+  color: #ccc;
+  font-size: 18px;
+  transition: transform 0.2s;
+}
+
+.feature-card:hover .arrow {
+  transform: translateX(4px);
+  color: #999;
+}
+
+/* ---------- Back Button ---------- */
+.back-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 0 12px 0;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.back-bar button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.back-bar button:hover {
+  background: #f0f0f0;
+  color: var(--text);
+}
+
+.back-bar .page-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ---------- Action Buttons (Sub-pages) ---------- */
+.action-btn {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  text-align: left;
+  background: var(--surface);
+  margin-bottom: 10px;
+  box-shadow: var(--shadow);
+}
+
+.action-btn:active {
+  transform: scale(0.97);
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+.action-btn .icon-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.action-btn.primary {
+  background: linear-gradient(135deg, var(--stu-orange), var(--stu-yellow));
+  color: white;
+  box-shadow: 0 8px 16px rgba(255, 107, 0, 0.25);
+}
+
+.action-btn.primary .icon-circle {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.action-btn.secondary {
+  background: var(--surface);
+  color: var(--stu-orange);
+  border: 2px solid transparent;
+}
+
+.action-btn.secondary .icon-circle {
+  background: rgba(255, 107, 0, 0.1);
+}
+
+.action-btn.secondary:hover {
+  border-color: var(--stu-yellow);
+}
+
+.action-btn.dtu-primary {
+  background: linear-gradient(135deg, var(--dtu-red), #ff6b6b);
+  color: white;
+  box-shadow: 0 8px 16px rgba(213, 43, 30, 0.25);
+}
+
+.action-btn.dtu-primary .icon-circle {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.action-btn .btn-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.action-btn .btn-heading {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 1px;
+}
+
+.action-btn .btn-sub {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+/* ---------- Form Elements (DTU) ---------- */
+.form-group {
+  margin-bottom: 14px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.form-group label .icon {
+  margin-right: 4px;
+}
+
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 13px;
+  background: var(--surface);
+  color: var(--text);
+  transition: all 0.2s;
+}
+
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--dtu-red);
+  box-shadow: 0 0 0 3px rgba(213, 43, 30, 0.1);
+}
+
+.form-group textarea {
+  min-height: 70px;
+  resize: vertical;
+}
+
+.form-group select {
+  cursor: pointer;
+}
+
+/* ---------- Hint Text ---------- */
+.hint-text {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+  margin: -4px 0 10px 0;
+  font-style: italic;
+  font-weight: 500;
+}
+
+/* ---------- Status Indicator ---------- */
+.status-bar {
+  margin-top: 16px;
+  padding: 10px;
+  background: var(--surface);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.status-bar .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ---------- Animations ---------- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.page-enter {
+  animation: fadeIn 0.25s ease-out forwards;
+}
+
+/* ---------- Scrollbar ---------- */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #ddd;
+  border-radius: 4px;
+}
