@@ -2,19 +2,13 @@
 // Multi Tool Hub - Popup Router
 // ============================================
 
+// Khai báo PAGES trước để các feature module đăng ký vào
 const PAGES = {
   home: {
     render: renderHome,
     title: ''
-  },
-  dtu: {
-    render: renderDtuRating,
-    title: '🎓 Đánh giá DTU'
-  },
-  studocu: {
-    render: renderStudocu,
-    title: '📚 Studocu Tools'
   }
+  // dtu và studocu sẽ được đăng ký bởi feature modules
 };
 
 let currentPage = 'home';
@@ -22,7 +16,10 @@ let currentPage = 'home';
 function navigateTo(pageName) {
   const container = document.getElementById('app-container');
   const page = PAGES[pageName];
-  if (!page) return;
+  if (!page) {
+    console.error('Page not found:', pageName);
+    return;
+  }
 
   currentPage = pageName;
 
