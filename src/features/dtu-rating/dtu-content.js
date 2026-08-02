@@ -26,6 +26,27 @@ if (window.location.href.includes('https://mydtu.duytan.edu.vn/sites/index.aspx?
                     }
                 }
 
+                // ========== THÊM XỬ LÝ CÂU 53 ==========
+                // Câu 53: Radio button với các lựa chọn 1-5
+                // Mặc định chọn "Hài lòng" (4) hoặc "Rất hài lòng" (5)
+                const cau53Options = ['1', '2', '3', '4', '5'];
+                const selectedValue = request.cau53Value || '4'; // Mặc định Hài lòng
+                
+                // Tìm radio có id R53{value}
+                for (const val of cau53Options) {
+                    const radioId = `R53${val}`;
+                    const radio = document.getElementById(radioId);
+                    if (radio) {
+                        if (val === selectedValue) {
+                            radio.checked = true;
+                            radio.dispatchEvent(new Event('change', { bubbles: true }));
+                        } else {
+                            // Đảm bảo các option khác bị bỏ chọn (phòng trường hợp)
+                            radio.checked = false;
+                        }
+                    }
+                }
+
                 // Scroll to bottom for CAPTCHA
                 window.scrollTo({
                     top: document.body.scrollHeight,
