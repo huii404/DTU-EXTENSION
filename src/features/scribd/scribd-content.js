@@ -1,6 +1,5 @@
 // ============================================
 // Multi Tool Hub - Scribd Content Script
-// Auto-PDF workflow + URL param trigger
 // ============================================
 
 const CONFIG_SCRIBD = {
@@ -28,7 +27,7 @@ function startScribdAutoPDF() {
   // Inject viewer styles
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = chrome.runtime.getURL('styles/viewer-styles.css');
+  link.href = chrome.runtime.getURL('src/styles/viewer-styles.css');
   document.head.appendChild(link);
 
   const overlay = document.createElement('div');
@@ -58,11 +57,12 @@ function startScribdAutoPDF() {
         setTimeout(() => {
           overlay.style.opacity = '0';
           setTimeout(() => overlay.remove(), 300);
-          // Gọi hàm từ studocu.js (đã được inject)
-          if (typeof runScribdCleanViewer === 'function') {
-            runScribdCleanViewer();
+          
+          // Gọi hàm tạo PDF từ popup logic
+          if (typeof runScribdPDFWithLibraries === 'function') {
+            runScribdPDFWithLibraries();
           } else {
-            alert('⚠️ Hàm tạo PDF chưa được inject. Vui lòng dùng popup!');
+            alert('⚠️ Vui lòng dùng nút "Tải File PDF" trong popup để tạo PDF!');
           }
         }, 1000);
       }
@@ -72,3 +72,54 @@ function startScribdAutoPDF() {
     }
   }, CONFIG_SCRIBD.SCROLL_INTERVAL);
 }
+
+// Xóa watermark/paywall khi trang load
+function removeScribdOverlays() {
+  const selectors = [
+    '.paywall',
+    '.overlay',
+    '.banner',
+    '.upsell',
+    '.premium-banner',
+    '.subscribe-banner',
+    '.ad-container',
+    '.advertisement',
+    '[class*="paywall"]',
+    '[class*="overlay"]',
+    '[class*="banner"]'
+  ];
+  
+  for (const selector of selectors) {
+    document.querySelectorAll(selector).forEach(el => {
+      el.style.display = 'none';
+      el.style.visibility = 'hidden';
+      el.style.opacity = '0';
+      el.style.zIndex = '-9999';
+    });
+  }
+  
+  // Thử xóa blur
+  document.querySelectorAll('*').forEach(el => {
+    const style = window.getComputedStyle(el);
+    if (style.filter && style.filter.includes('blur')) {
+      el.style.filter = 'none';
+      el.style.webkitFilter = 'none';
+    }
+  });
+}
+
+// Chạy khi document load
+if (document.readyState === 'complete') {
+  removeScribdOverlays();
+} else {
+  window.addEventListener('load', removeScribdOverlays);
+}
+
+// Observer để bắt các overlay được thêm sau
+const observer = new MutationObserver(() => {
+  removeScribdOverlays();
+});
+observer.observe(document.body, {
+  childList: true,
+  subtree: true
+});

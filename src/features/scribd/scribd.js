@@ -2,51 +2,22 @@
 // Multi Tool Hub - Scribd Feature (Popup Logic)
 // ============================================
 
+let scribdHTML = '';
+
+// Load HTML từ file
+async function loadScribdHTML() {
+  try {
+    const response = await fetch(chrome.runtime.getURL('src/features/scribd/scribd.html'));
+    scribdHTML = await response.text();
+  } catch (e) {
+    console.error('Không thể load scribd.html:', e);
+    scribdHTML = '<p class="hint-text">(Mẹo: Cuộn chuột tới cuối tài liệu để tải toàn bộ trước khi Tải PDF)</p>';
+  }
+}
+
 PAGES.scribd = {
   render: function() {
-    return `
-      <p class="hint-text">(Mẹo: Cuộn chuột tới cuối tài liệu để tải toàn bộ trước khi Tải PDF)</p>
-
-      <button id="scribd-pdf-btn" class="action-btn primary" style="background: linear-gradient(135deg, #0077B5, #00A0DC);">
-        <div class="icon-circle">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/>
-            <line x1="12" x2="12" y1="15" y2="3"/>
-          </svg>
-        </div>
-        <div class="btn-info">
-          <span class="btn-heading">Tải File PDF</span>
-          <span class="btn-sub">Tự động dàn trang in sạch watermark</span>
-        </div>
-      </button>
-
-      <button id="scribd-clear-btn" class="action-btn secondary" style="color: #0077B5;">
-        <div class="icon-circle" style="background: rgba(0, 119, 181, 0.1);">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
-            <circle cx="12" cy="12" r="3"/>
-          </svg>
-        </div>
-        <div class="btn-info">
-          <span class="btn-heading">Xem file & Xóa Watermark</span>
-          <span class="btn-sub">Xóa cookie và reload trang</span>
-        </div>
-      </button>
-
-      <button id="scribd-capture-btn" class="action-btn secondary" style="color: #0077B5;">
-        <div class="icon-circle" style="background: rgba(0, 119, 181, 0.1);">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-            <circle cx="12" cy="13" r="4"/>
-          </svg>
-        </div>
-        <div class="btn-info">
-          <span class="btn-heading">Lưu thành Ảnh</span>
-          <span class="btn-sub">Tải trang đang hiển thị (.PNG)</span>
-        </div>
-      </button>
-    `;
+    return scribdHTML || '<p>Đang tải...</p>';
   },
 
   attachEvents: function() {
@@ -66,6 +37,15 @@ PAGES.scribd = {
         btn.style.opacity = '0.7';
         btn.style.pointerEvents = 'none';
 
+        // Inject thư viện
+        await chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          files: [
+            'libs/jsPDF/jspdf.umd.min.js',
+            'libs/html2canvas/html2canvas.min.js'
+          ]
+        });
+
         // Inject CSS
         await chrome.scripting.insertCSS({
           target: { tabId: tab.id },
@@ -75,7 +55,7 @@ PAGES.scribd = {
         // Inject và chạy hàm tạo PDF
         await chrome.scripting.executeScript({
           target: { tabId: tab.id },
-          func: runScribdCleanViewer
+          func: runScribdPDFWithLibraries
         });
 
         btn.querySelector('.btn-heading').innerText = originalText;
@@ -188,47 +168,45 @@ PAGES.scribd = {
 function captureScribdPages() {
   console.log('[Scribd] captureScribdPages running');
   
-  // ===== THỬ NHIỀU SELECTOR KHÁC NHAU =====
-  let pages = [];
+  // Lấy tất cả trang
+  const pages = [];
+  const selectors = [
+    '.page',
+    '.absolute-page',
+    '[data-page-number]',
+    '.document-page',
+    '.page-container'
+  ];
   
-  // Thử selector 1: .page
-  pages = document.querySelectorAll('.page');
-  if (pages.length === 0) {
-    // Thử selector 2: .absolute-page
-    pages = document.querySelectorAll('.absolute-page');
-  }
-  if (pages.length === 0) {
-    // Thử selector 3: [data-page-number]
-    pages = document.querySelectorAll('[data-page-number]');
-  }
-  if (pages.length === 0) {
-    // Thử selector 4: .document-page
-    pages = document.querySelectorAll('.document-page');
-  }
-  if (pages.length === 0) {
-    // Thử selector 5: .page-container
-    pages = document.querySelectorAll('.page-container');
-  }
-  if (pages.length === 0) {
-    // Thử selector 6: Tìm tất cả div có chứa ảnh lớn
-    pages = document.querySelectorAll('div[style*="transform"]');
-  }
-  if (pages.length === 0) {
-    // Thử selector 7: Tìm tất cả img trong document viewer
-    const viewer = document.querySelector('.document-viewer, .viewer, #doc_viewer, #document_viewer');
-    if (viewer) {
-      pages = viewer.querySelectorAll('img');
+  for (const selector of selectors) {
+    const found = document.querySelectorAll(selector);
+    if (found.length > 0) {
+      found.forEach(el => pages.push(el));
+      break;
     }
+  }
+  
+  if (pages.length === 0) {
+    // Scan tất cả div có class chứa "page"
+    document.querySelectorAll('div').forEach(el => {
+      if (el.className && typeof el.className === 'string') {
+        if (el.className.toLowerCase().includes('page') && 
+            !el.className.toLowerCase().includes('header') &&
+            !el.className.toLowerCase().includes('footer') &&
+            !el.className.toLowerCase().includes('navigation')) {
+          const rect = el.getBoundingClientRect();
+          if (rect.width > 200 && rect.height > 200) {
+            pages.push(el);
+          }
+        }
+      }
+    });
   }
   
   console.log('[Scribd] Found pages:', pages.length);
   
   if (pages.length === 0) {
-    // Debug: Log toàn bộ DOM để tìm selector đúng
-    console.log('[Scribd] DOM structure:', document.body.innerHTML.substring(0, 500));
-    alert('⚠️ Không tìm thấy trang nào.\n' +
-          'Vui lòng cuộn xuống cuối tài liệu để tải hết nội dung!\n' +
-          'Nếu vẫn lỗi, hãy mở Console (F12) và chụp ảnh màn hình gửi dev.');
+    alert('⚠️ Không tìm thấy trang nào.\nHãy cuộn xuống cuối để tải hết nội dung!');
     return [];
   }
 
@@ -241,34 +219,25 @@ function captureScribdPages() {
   });
 
   if (visiblePages.length === 0) {
-    alert('⚠️ Không tìm thấy trang nào hiển thị trên màn hình.\nHãy cuộn đến trang muốn chụp!');
+    alert('⚠️ Không tìm thấy trang nào hiển thị trên màn hình.');
     return [];
   }
 
   const imagesToDownload = [];
   visiblePages.forEach(function(item) {
-    // Tìm ảnh trong page
+    // Tìm ảnh hoặc canvas trong page
     let img = item.element.querySelector('img');
     if (!img) {
-      // Thử tìm canvas
       const canvas = item.element.querySelector('canvas');
       if (canvas) {
         try {
-          const dataUrl = canvas.toDataURL('image/png');
-          imagesToDownload.push({ src: dataUrl, name: `page_${item.index}.png` });
+          imagesToDownload.push({ 
+            src: canvas.toDataURL('image/png'), 
+            name: `page_${item.index}.png` 
+          });
           return;
         } catch (e) {
-          console.warn('[Scribd] Canvas toDataURL error:', e);
-        }
-      }
-      // Thử tìm background-image
-      const style = window.getComputedStyle(item.element);
-      const bgImage = style.backgroundImage;
-      if (bgImage && bgImage.includes('url')) {
-        const url = bgImage.replace(/url\(["']?(.*?)["']?\)/i, '$1');
-        if (url && url.startsWith('http')) {
-          imagesToDownload.push({ src: url, name: `page_${item.index}.png` });
-          return;
+          console.warn('[Scribd] Canvas error:', e);
         }
       }
     }
@@ -278,146 +247,170 @@ function captureScribdPages() {
   });
 
   if (imagesToDownload.length === 0) {
-    alert('⚠️ Không tìm thấy dữ liệu ảnh.\n' +
-          'Trang có thể đang sử dụng canvas hoặc chưa tải xong.\n' +
-          'Thử cuộn trang và bấm lại!');
+    alert('⚠️ Không tìm thấy dữ liệu ảnh.\nTrang có thể dùng canvas hoặc chưa tải xong.');
   }
   
-  console.log('[Scribd] Images found:', imagesToDownload.length);
   return imagesToDownload;
 }
 
 // ============================================
-// HÀM TẠO PDF VIEWER CHO SCRIBD (injected vào trang)
+// HÀM TẠO PDF CHO SCRIBD (CẢI TIẾN HOÀN CHỈNH)
 // ============================================
-function runScribdCleanViewer() {
-  console.log('[Scribd] runScribdCleanViewer running');
+async function runScribdPDFWithLibraries() {
+  console.log('[Scribd] runScribdPDFWithLibraries running');
   
-  // ===== TÌM TẤT CẢ CÁC TRANG =====
+  if (typeof window.jspdf === 'undefined' && typeof jspdf === 'undefined') {
+    alert('⚠️ Thư viện jsPDF chưa được load. Vui lòng thử lại!');
+    return;
+  }
+  
+  const { jsPDF } = window.jspdf || window;
+  
+  // 1. Quét các phần tử trang trên Scribd
   let pages = [];
-  
-  // Thử các selector khác nhau
   const selectors = [
-    '.page',
-    '.absolute-page',
+    '.outer_page',
+    '.document_page',
+    '.page_blur_container',
+    '.page_render',
     '[data-page-number]',
-    '.document-page',
-    '.page-container',
-    '.text-layer',
-    '.page-viewer .page',
-    '#document_viewer .page'
+    'div[id^="page_"]',
+    '.page'
   ];
   
   for (const selector of selectors) {
     const found = document.querySelectorAll(selector);
     if (found.length > 0) {
-      pages = found;
-      console.log(`[Scribd] Found ${pages.length} pages with selector: ${selector}`);
+      found.forEach(el => pages.push(el));
       break;
     }
   }
   
-  // Nếu vẫn chưa tìm thấy, thử tìm tất cả các div có class chứa "page"
   if (pages.length === 0) {
-    const allDivs = document.querySelectorAll('div');
-    allDivs.forEach(function(div) {
-      if (div.className && typeof div.className === 'string') {
-        const classNames = div.className.split(' ');
-        for (const cls of classNames) {
-          if (cls.toLowerCase().includes('page') && 
-              !cls.toLowerCase().includes('header') && 
-              !cls.toLowerCase().includes('footer') &&
-              !cls.toLowerCase().includes('navigation') &&
-              !cls.toLowerCase().includes('toolbar')) {
-            // Kiểm tra kích thước
-            const rect = div.getBoundingClientRect();
-            if (rect.width > 100 && rect.height > 100) {
-              pages.push(div);
-              break;
-            }
-          }
-        }
+    document.querySelectorAll('.document_renderer img, .document_renderer canvas, [class*="page"] img').forEach(el => {
+      const parent = el.closest('div');
+      if (parent && !pages.includes(parent)) {
+        pages.push(parent);
       }
     });
-    console.log(`[Scribd] Found ${pages.length} pages by class scanning`);
   }
   
   if (pages.length === 0) {
-    alert('⚠️ Không tìm thấy trang nào.\n' +
-          'Hãy cuộn xuống cuối để web tải hết nội dung!\n' +
-          'Nếu vẫn lỗi, hãy mở Console (F12) và chụp ảnh màn hình gửi dev.');
+    alert('⚠️ Không tìm thấy trang nào.\nHãy cuộn chuột xuống hết tài liệu rồi bấm lại!');
     return;
   }
 
-  if (!confirm(`📄 Sẵn sàng tạo PDF cho ${pages.length} trang.\nBấm OK để bắt đầu xử lý...`)) return;
+  if (!confirm(`📄 Sẵn sàng tạo PDF cho ${pages.length} trang.\nBấm OK để bắt đầu...`)) return;
 
-  const viewerContainer = document.createElement('div');
-  viewerContainer.id = 'clean-viewer-container';
+  // Tạo khung thông báo tiến trình trên màn hình
+  const progressBox = document.createElement('div');
+  progressBox.style.cssText = `
+    position: fixed; top: 20px; right: 20px; z-index: 999999;
+    background: #0077B5; color: white; padding: 15px 20px;
+    border-radius: 8px; font-family: sans-serif; font-size: 14px;
+    font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  `;
+  progressBox.innerText = `⏳ Đang khởi tạo PDF (0/${pages.length})...`;
+  document.body.appendChild(progressBox);
 
-  pages.forEach(function(page, index) {
-    const newPage = document.createElement('div');
-    newPage.className = 'std-page';
-    newPage.id = 'page-' + (index + 1);
-    newPage.setAttribute('data-page-number', index + 1);
-    
-    // Lấy kích thước từ page
-    let width = 595.3;
-    let height = 841.9;
-    
-    // Thử lấy từ style
-    const style = page.getAttribute('style') || '';
-    const widthMatch = style.match(/width:\s*([\d.]+)px/);
-    const heightMatch = style.match(/height:\s*([\d.]+)px/);
-    
-    if (widthMatch) width = parseFloat(widthMatch[1]);
-    if (heightMatch) height = parseFloat(heightMatch[1]);
-    
-    // Nếu không có, lấy từ getBoundingClientRect
-    if (!widthMatch || !heightMatch) {
-      const rect = page.getBoundingClientRect();
-      if (rect.width > 0) width = rect.width;
-      if (rect.height > 0) height = rect.height;
-    }
-    
-    newPage.style.width = width + 'px';
-    newPage.style.height = height + 'px';
-
-    // Clone nội dung page
-    const clone = page.cloneNode(true);
-    clone.style.cssText = `
-      width: 100%;
-      height: 100%;
-      position: relative;
-      overflow: hidden;
-    `;
-    
-    // Xóa các element không cần thiết (paywall, overlay, ...)
-    const removeSelectors = [
-      '.paywall',
-      '.overlay',
-      '.banner',
-      '.upsell',
-      '.premium-banner',
-      '.subscribe-banner',
-      '.ad-container',
-      '.advertisement',
-      '[class*="paywall"]',
-      '[class*="overlay"]',
-      '[class*="banner"]',
-      '[class*="upsell"]'
-    ];
-    
-    for (const sel of removeSelectors) {
-      clone.querySelectorAll(sel).forEach(el => el.remove());
-    }
-    
-    newPage.appendChild(clone);
-    viewerContainer.appendChild(newPage);
+  const pdf = new jsPDF({
+    orientation: 'portrait',
+    unit: 'px',
+    format: 'a4'
   });
 
-  document.body.appendChild(viewerContainer);
+  let processedCount = 0;
 
-  setTimeout(function() {
-    window.print();
-  }, 1000);
+  try {
+    for (let i = 0; i < pages.length; i++) {
+      const page = pages[i];
+      progressBox.innerText = `⏳ Đang xử lý trang ${i + 1}/${pages.length}...`;
+      
+      // Cuộn tới từng trang để ép Scribd load ảnh
+      page.scrollIntoView({ behavior: 'instant', block: 'center' });
+      await new Promise(r => setTimeout(r, 300));
+
+      // Dọn dẹp overlay
+      const removeSelectors = [
+        '.paywall', '.overlay', '.banner', '.upsell',
+        '.premium-banner', '.subscribe-banner', '.ad-container',
+        '[class*="paywall"]', '[class*="blur"]'
+      ];
+      removeSelectors.forEach(sel => {
+        page.querySelectorAll(sel).forEach(el => el.remove());
+      });
+
+      page.style.filter = 'none';
+      page.style.webkitFilter = 'none';
+
+      // Chụp hình trang
+      const canvas = await html2canvas(page, {
+        scale: 1.5,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        logging: false
+      });
+
+      if (!canvas || canvas.width <= 0 || canvas.height <= 0) {
+        console.warn(`[Scribd] Trang ${i + 1} bị lỗi kích thước canvas.`);
+        continue;
+      }
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.85);
+
+      if (processedCount > 0) {
+        pdf.addPage();
+      }
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      const cWidth = Number(canvas.width) || pageWidth;
+      const cHeight = Number(canvas.height) || pageHeight;
+
+      const ratio = Math.min(pageWidth / cWidth, pageHeight / cHeight);
+      const imgWidth = Math.max(1, cWidth * ratio);
+      const imgHeight = Math.max(1, cHeight * ratio);
+      
+      const x = Math.max(0, (pageWidth - imgWidth) / 2);
+      const y = Math.max(0, (pageHeight - imgHeight) / 2);
+
+      pdf.addImage(imgData, 'JPEG', x, y, imgWidth, imgHeight);
+      processedCount++;
+    }
+
+    if (processedCount === 0) {
+      alert('❌ Không thể chụp được nội dung trang nào!');
+      progressBox.remove();
+      return;
+    }
+
+    progressBox.innerText = '💾 Đang xuất file PDF...';
+
+    // Tạo blob và kích hoạt lệnh tải tự động
+    const pdfBlob = pdf.output('blob');
+    const blobUrl = URL.createObjectURL(pdfBlob);
+    
+    const downloadLink = document.createElement('a');
+    downloadLink.href = blobUrl;
+    downloadLink.download = 'Scribd_Document.pdf';
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    
+    setTimeout(() => {
+      document.body.removeChild(downloadLink);
+      URL.revokeObjectURL(blobUrl);
+      progressBox.remove();
+      alert(`✅ Đã tạo PDF thành công! (${processedCount} trang)`);
+    }, 1000);
+
+  } catch (error) {
+    console.error('[Scribd] PDF creation error:', error);
+    progressBox.remove();
+    alert('❌ Lỗi tạo PDF: ' + error.message);
+  }
 }
+
+// Load HTML khi khởi động
+loadScribdHTML();

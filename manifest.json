@@ -63,7 +63,9 @@
       ],
       "matches": [
         "*://*.studocu.com/*",
-        "*://*.studocu.vn/*"
+        "*://*.studocu.vn/*",
+        "*://*.scribd.com/*",
+        "*://*.scribd.vn/*"
       ]
     }
   ]
