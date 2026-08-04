@@ -3,30 +3,30 @@
   "name": "Multi Tool Hub",
   "version": "2.0.0",
   "description": "Tập hợp tiện ích: Đánh giá DTU nhanh, Tải tài liệu Studocu không watermark...",
-
   "permissions": [
     "activeTab",
     "scripting",
     "cookies",
     "downloads"
   ],
-
   "host_permissions": [
     "https://mydtu.duytan.edu.vn/*",
     "*://*.studocu.com/*",
-    "*://*.studocu.vn/*"
+    "*://*.studocu.vn/*",
+    "*://*.scribd.com/*",
+    "*://*.scribd.vn/*"
   ],
-
   "action": {
     "default_popup": "src/popup/popup.html"
   },
-
   "content_scripts": [
     {
       "matches": [
         "https://mydtu.duytan.edu.vn/sites/index.aspx?p=home_ratingform*"
       ],
-      "js": ["src/features/dtu-rating/dtu-content.js"],
+      "js": [
+        "src/features/dtu-rating/dtu-content.js"
+      ],
       "run_at": "document_idle"
     },
     {
@@ -34,15 +34,33 @@
         "*://*.studocu.com/*",
         "*://*.studocu.vn/*"
       ],
-      "js": ["src/features/studocu/studocu-content.js"],
-      "css": ["styles/custom-styles.css"],
+      "js": [
+        "src/features/studocu/studocu-content.js"
+      ],
+      "css": [
+        "styles/custom-styles.css"
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "*://*.scribd.com/*",
+        "*://*.scribd.vn/*"
+      ],
+      "js": [
+        "src/features/scribd/scribd-content.js"
+      ],
+      "css": [
+        "styles/custom-styles.css"
+      ],
       "run_at": "document_start"
     }
   ],
-
   "web_accessible_resources": [
     {
-      "resources": ["styles/viewer-styles.css"],
+      "resources": [
+        "styles/viewer-styles.css"
+      ],
       "matches": [
         "*://*.studocu.com/*",
         "*://*.studocu.vn/*"

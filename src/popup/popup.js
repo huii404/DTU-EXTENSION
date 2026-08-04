@@ -68,6 +68,16 @@ function renderHome() {
         <span class="arrow">›</span>
       </button>
 
+
+      <button class="feature-card" data-page="scribd" style="border-left: 4px solid #0077B5;">
+        <div class="icon-box" style="background: linear-gradient(135deg, #0077B5, #00A0DC);">📄</div>
+        <div class="info">
+          <span class="title">Scribd Tools</span>
+          <span class="desc">Tải PDF, xóa watermark, lưu ảnh</span>
+        </div>
+        <span class="arrow">›</span>
+      </button>
+
       <div class="status-bar">
         <span class="dot"></span>
         <span>Sẵn sàng hoạt động</span>

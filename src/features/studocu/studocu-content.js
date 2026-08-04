@@ -13,16 +13,23 @@ const CONFIG_STU = {
 };
 
 // ---------- Auto-PDF via URL Param ----------
+// CHỈ chạy khi có param, KHÔNG có else
 if (window.location.href.includes(CONFIG_STU.AUTO_PDF_PARAM)) {
+  console.log('[Studocu Content] Auto-PDF triggered via URL param');
+  
+  // Xóa param khỏi URL để không bị trigger lại nếu F5
   const newUrl = window.location.href
     .replace(/([&?])banhmi_auto_pdf=1&?/, '$1')
     .replace(/[&?]$/, '');
   window.history.replaceState({}, document.title, newUrl);
 
+  // Chờ 1s cho trang load cơ bản
   setTimeout(startAutoPDFProcess, 1000);
 }
 
 function startAutoPDFProcess() {
+  console.log('[Studocu Content] Starting auto PDF process');
+  
   // Inject viewer styles
   const link = document.createElement('link');
   link.rel = 'stylesheet';
@@ -69,6 +76,8 @@ function startAutoPDFProcess() {
 
 // ---------- Clean Viewer + Print ----------
 function runCleanViewer() {
+  console.log('[Studocu Content] Running clean viewer');
+  
   const pages = document.querySelectorAll('div[data-page-index]');
   if (pages.length === 0) {
     alert('⚠️ Không tìm thấy trang nào.');

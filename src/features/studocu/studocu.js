@@ -50,128 +50,137 @@ PAGES.studocu = {
   },
 
   attachEvents: function() {
-    // 1. Tải File PDF
-    document.getElementById('stu-pdf-btn').addEventListener('click', async (e) => {
-      const tab = await getCurrentTab();
-      if (!tab.url.includes(CONFIG.STUDOCU.URL_PATTERN)) {
-        showToast('Tính năng này chỉ hoạt động trên Studocu', 'error');
-        return;
-      }
-
-      const btn = e.currentTarget;
-      const originalHeading = btn.querySelector('.btn-heading').innerText;
-      btn.querySelector('.btn-heading').innerText = 'Đang xử lý...';
-      btn.style.opacity = '0.7';
-
+    // ========== 1. Tải File PDF ==========
+    document.getElementById('stu-pdf-btn').addEventListener('click', async function() {
+      console.log('[Studocu] PDF button clicked');
       try {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (!tab || !tab.url || !tab.url.includes('studocu')) {
+          alert('⚠️ Tính năng này chỉ hoạt động trên trang Studocu.');
+          return;
+        }
+
+        const btn = this;
+        const originalText = btn.querySelector('.btn-heading').innerText;
+        btn.querySelector('.btn-heading').innerText = '⏳ Đang xử lý...';
+        btn.style.opacity = '0.7';
+        btn.style.pointerEvents = 'none';
+
+        // Inject CSS
         await chrome.scripting.insertCSS({
           target: { tabId: tab.id },
           files: ['styles/viewer-styles.css']
         });
 
+        // Inject và chạy hàm tạo PDF
         await chrome.scripting.executeScript({
           target: { tabId: tab.id },
           func: runCleanViewerInside
         });
 
-        showToast('Đang chuẩn bị PDF...', 'info');
-      } catch (err) {
-        showToast('Lỗi: ' + err.message, 'error');
-      } finally {
-        btn.querySelector('.btn-heading').innerText = originalHeading;
+        btn.querySelector('.btn-heading').innerText = originalText;
         btn.style.opacity = '1';
-      }
-    });
-
-    // 2. Xem file & Xóa Watermark
-    document.getElementById('stu-clear-btn').addEventListener('click', async (e) => {
-      const tab = await getCurrentTab();
-      if (!tab.url.includes(CONFIG.STUDOCU.URL_PATTERN)) {
-        showToast('Tính năng này chỉ hoạt động trên Studocu', 'error');
-        return;
-      }
-
-      const btn = e.currentTarget;
-      const originalHeading = btn.querySelector('.btn-heading').innerText;
-      btn.querySelector('.btn-heading').innerText = 'Đang xử lý...';
-      btn.style.opacity = '0.7';
-      btn.style.pointerEvents = 'none';
-
-      try {
-        const allCookies = await chrome.cookies.getAll({});
-        for (const cookie of allCookies) {
-          if (cookie.domain.includes('studocu')) {
-            let cleanDomain = cookie.domain.startsWith('.') ? cookie.domain.substring(1) : cookie.domain;
-            const protocol = cookie.secure ? 'https:' : 'http:';
-            const url = `${protocol}//${cleanDomain}${cookie.path}`;
-            await chrome.cookies.remove({ url, name: cookie.name, storeId: cookie.storeId });
-          }
-        }
-        await new Promise(r => setTimeout(r, 300));
-        chrome.tabs.reload(tab.id);
-        showToast('Đã xóa cookie, đang reload trang...', 'success');
+        btn.style.pointerEvents = 'auto';
       } catch (err) {
-        showToast('Lỗi: ' + err.message, 'error');
-        btn.querySelector('.btn-heading').innerText = originalHeading;
+        console.error('[Studocu] PDF error:', err);
+        alert('❌ Lỗi: ' + err.message);
+        // Reset button
+        const btn = this;
+        btn.querySelector('.btn-heading').innerText = 'Tải File PDF';
         btn.style.opacity = '1';
         btn.style.pointerEvents = 'auto';
       }
     });
 
-    // 3. Lưu thành Ảnh
-    document.getElementById('stu-capture-btn').addEventListener('click', async () => {
-      const tab = await getCurrentTab();
-      if (!tab.url.includes(CONFIG.STUDOCU.URL_PATTERN)) {
-        showToast('Tính năng này chỉ hoạt động trên Studocu', 'error');
-        return;
-      }
-
-      chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        func: () => {
-          const visiblePages = [];
-          const pages = document.querySelectorAll('div[data-page-index]');
-
-          pages.forEach((page, index) => {
-            const rect = page.getBoundingClientRect();
-            if (rect.top < window.innerHeight && rect.bottom > 0) {
-              visiblePages.push({ element: page, index: index + 1 });
-            }
-          });
-
-          if (visiblePages.length === 0) {
-            alert('Không tìm thấy trang nào trên màn hình. Hãy cuộn đến trang muốn chụp!');
-            return [];
-          }
-
-          const imagesToDownload = [];
-          visiblePages.forEach(item => {
-            const img = item.element.querySelector('img.bi') || item.element.querySelector('img');
-            if (img && img.src) {
-              imagesToDownload.push({ src: img.src, name: `page_${item.index}.png` });
-            }
-          });
-
-          if (imagesToDownload.length === 0) {
-            alert('Không tìm thấy dữ liệu ảnh. Trang có thể chưa tải xong.');
-          }
-          return imagesToDownload;
-        }
-      }, (results) => {
-        if (chrome.runtime.lastError) {
-          showToast('Lỗi: ' + chrome.runtime.lastError.message, 'error');
+    // ========== 2. Xem file & Xóa Watermark ==========
+    document.getElementById('stu-clear-btn').addEventListener('click', async function() {
+      console.log('[Studocu] Clear button clicked');
+      try {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (!tab || !tab.url || !tab.url.includes('studocu')) {
+          alert('⚠️ Tính năng này chỉ hoạt động trên trang Studocu.');
           return;
         }
-        if (results && results[0] && results[0].result && results[0].result.length > 0) {
-          results[0].result.forEach(imgData => {
-            chrome.downloads.download({
-              url: imgData.src,
-              filename: `Studocu_${imgData.name}`,
-              saveAs: false
-            });
-          });
-          showToast(`Đang tải ${results[0].result.length} ảnh...`, 'success');
+
+        const btn = this;
+        const originalText = btn.querySelector('.btn-heading').innerText;
+        btn.querySelector('.btn-heading').innerText = '⏳ Đang xóa cookie...';
+        btn.style.opacity = '0.7';
+        btn.style.pointerEvents = 'none';
+
+        // Xóa tất cả cookies liên quan đến studocu
+        const allCookies = await chrome.cookies.getAll({});
+        let deletedCount = 0;
+        for (const cookie of allCookies) {
+          if (cookie.domain && cookie.domain.includes('studocu')) {
+            try {
+              let cleanDomain = cookie.domain.startsWith('.') ? cookie.domain.substring(1) : cookie.domain;
+              const protocol = cookie.secure ? 'https:' : 'http:';
+              const url = `${protocol}//${cleanDomain}${cookie.path || '/'}`;
+              await chrome.cookies.remove({ url, name: cookie.name, storeId: cookie.storeId });
+              deletedCount++;
+            } catch (e) {
+              console.warn('[Studocu] Không xóa được cookie:', cookie.name, e);
+            }
+          }
         }
+        console.log(`[Studocu] Đã xóa ${deletedCount} cookie`);
+
+        // Reload trang
+        await chrome.tabs.reload(tab.id);
+        // Reset button (popup sẽ đóng sau reload)
+        btn.querySelector('.btn-heading').innerText = originalText;
+        btn.style.opacity = '1';
+        btn.style.pointerEvents = 'auto';
+      } catch (err) {
+        console.error('[Studocu] Clear error:', err);
+        alert('❌ Lỗi: ' + err.message);
+        const btn = this;
+        btn.querySelector('.btn-heading').innerText = 'Xem file & Xóa Watermark';
+        btn.style.opacity = '1';
+        btn.style.pointerEvents = 'auto';
+      }
+    });
+
+    // ========== 3. Lưu thành Ảnh ==========
+    document.getElementById('stu-capture-btn').addEventListener('click', function() {
+      console.log('[Studocu] Capture button clicked');
+      chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+        const tab = tabs[0];
+        if (!tab || !tab.url || !tab.url.includes('studocu')) {
+          alert('⚠️ Tính năng này chỉ hoạt động trên trang Studocu.');
+          return;
+        }
+
+        chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          func: captureVisiblePages
+        }, function(results) {
+          if (chrome.runtime.lastError) {
+            console.error('[Studocu] Capture error:', chrome.runtime.lastError);
+            alert('❌ Lỗi: ' + chrome.runtime.lastError.message);
+            return;
+          }
+          if (results && results[0] && results[0].result) {
+            const images = results[0].result;
+            if (images.length === 0) {
+              alert('⚠️ Không tìm thấy trang nào trên màn hình.');
+              return;
+            }
+            images.forEach(function(imgData) {
+              chrome.downloads.download({
+                url: imgData.src,
+                filename: `Studocu_${imgData.name}`,
+                saveAs: false
+              }, function(downloadId) {
+                if (chrome.runtime.lastError) {
+                  console.error('[Studocu] Download error:', chrome.runtime.lastError);
+                }
+              });
+            });
+            alert(`✅ Đang tải ${images.length} ảnh...`);
+          }
+        });
       });
     });
   },
@@ -179,15 +188,78 @@ PAGES.studocu = {
   title: '📚 Studocu Tools'
 };
 
-// ========== PDF Viewer Function (injected to page) ==========
-function runCleanViewerInside() {
+// ============================================
+// Hàm chụp ảnh (injected vào trang)
+// ============================================
+function captureVisiblePages() {
+  console.log('[Studocu] captureVisiblePages running');
+  const visiblePages = [];
   const pages = document.querySelectorAll('div[data-page-index]');
   if (pages.length === 0) {
-    alert('Không tìm thấy trang nào.\nHãy cuộn xuống cuối để web tải hết nội dung!');
+    console.warn('[Studocu] Không tìm thấy trang nào');
+    return [];
+  }
+
+  pages.forEach(function(page, index) {
+    const rect = page.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0 && rect.width > 0 && rect.height > 0) {
+      visiblePages.push({ element: page, index: index + 1 });
+    }
+  });
+
+  if (visiblePages.length === 0) {
+    alert('⚠️ Không tìm thấy trang nào trên màn hình. Hãy cuộn đến trang muốn chụp!');
+    return [];
+  }
+
+  const imagesToDownload = [];
+  visiblePages.forEach(function(item) {
+    const img = item.element.querySelector('img.bi') || 
+                item.element.querySelector('img') || 
+                item.element.querySelector('img[src*="studocu"]');
+    if (img && img.src) {
+      let src = img.src;
+      // Lấy ảnh chất lượng cao nhất từ srcset
+      if (img.srcset) {
+        const srcsetParts = img.srcset.split(',');
+        if (srcsetParts.length > 0) {
+          let maxSize = 0;
+          let bestSrc = src;
+          srcsetParts.forEach(function(part) {
+            const match = part.trim().match(/^(.*?)\s+(\d+)w$/);
+            if (match) {
+              const size = parseInt(match[2]);
+              if (size > maxSize) {
+                maxSize = size;
+                bestSrc = match[1];
+              }
+            }
+          });
+          if (bestSrc) src = bestSrc;
+        }
+      }
+      imagesToDownload.push({ src: src, name: `page_${item.index}.png` });
+    }
+  });
+
+  if (imagesToDownload.length === 0) {
+    alert('⚠️ Không tìm thấy dữ liệu ảnh. Trang có thể chưa tải xong hoặc bị che mờ.');
+  }
+  return imagesToDownload;
+}
+
+// ============================================
+// Hàm tạo PDF Viewer (injected vào trang)
+// ============================================
+function runCleanViewerInside() {
+  console.log('[Studocu] runCleanViewerInside running');
+  const pages = document.querySelectorAll('div[data-page-index]');
+  if (pages.length === 0) {
+    alert('⚠️ Không tìm thấy trang nào.\nHãy cuộn xuống cuối để web tải hết nội dung!');
     return;
   }
 
-  if (!confirm(`Sẵn sàng tạo PDF cho ${pages.length} trang.\nBấm OK để xử lý...`)) return;
+  if (!confirm(`📄 Sẵn sàng tạo PDF cho ${pages.length} trang.\nBấm OK để bắt đầu xử lý...`)) return;
 
   const SCALE_FACTOR = 4;
   const HEIGHT_SCALE_DIVISOR = 4;
@@ -205,10 +277,10 @@ function runCleanViewerInside() {
     const scaleProps = ['font-size', 'line-height'];
     let styleString = '';
 
-    normalProps.forEach(prop => {
+    normalProps.forEach(function(prop) {
       const value = computedStyle.getPropertyValue(prop);
       if (value && value !== 'none' && value !== 'auto' && value !== 'normal') {
-        styleString += `${prop}: ${value} !important; `;
+        styleString += prop + ': ' + value + ' !important; ';
       }
     });
 
@@ -218,12 +290,12 @@ function runCleanViewerInside() {
         const numValue = parseFloat(widthValue);
         if (!isNaN(numValue) && numValue > 0) {
           const unit = widthValue.replace(numValue.toString(), '');
-          styleString += `width: ${numValue / widthScaleDivisor}${unit} !important; `;
+          styleString += 'width: ' + (numValue / widthScaleDivisor) + unit + ' !important; ';
         } else {
-          styleString += `width: ${widthValue} !important; `;
+          styleString += 'width: ' + widthValue + ' !important; ';
         }
       } else {
-        styleString += `width: ${widthValue} !important; `;
+        styleString += 'width: ' + widthValue + ' !important; ';
       }
     }
 
@@ -233,46 +305,46 @@ function runCleanViewerInside() {
         const numValue = parseFloat(heightValue);
         if (!isNaN(numValue) && numValue > 0) {
           const unit = heightValue.replace(numValue.toString(), '');
-          styleString += `height: ${numValue / heightScaleDivisor}${unit} !important; `;
+          styleString += 'height: ' + (numValue / heightScaleDivisor) + unit + ' !important; ';
         } else {
-          styleString += `height: ${heightValue} !important; `;
+          styleString += 'height: ' + heightValue + ' !important; ';
         }
       } else {
-        styleString += `height: ${heightValue} !important; `;
+        styleString += 'height: ' + heightValue + ' !important; ';
       }
     }
 
-    ['margin-top', 'margin-right', 'margin-bottom', 'margin-left'].forEach(prop => {
+    ['margin-top', 'margin-right', 'margin-bottom', 'margin-left'].forEach(function(prop) {
       const value = computedStyle.getPropertyValue(prop);
       if (value && value !== 'auto') {
         const numValue = parseFloat(value);
         if (!isNaN(numValue)) {
           if (shouldScaleMargin && numValue !== 0) {
             const unit = value.replace(numValue.toString(), '');
-            styleString += `${prop}: ${numValue / marginScaleDivisor}${unit} !important; `;
+            styleString += prop + ': ' + (numValue / marginScaleDivisor) + unit + ' !important; ';
           } else {
-            styleString += `${prop}: ${value} !important; `;
+            styleString += prop + ': ' + value + ' !important; ';
           }
         }
       }
     });
 
-    scaleProps.forEach(prop => {
+    scaleProps.forEach(function(prop) {
       const value = computedStyle.getPropertyValue(prop);
       if (value && value !== 'none' && value !== 'auto' && value !== 'normal') {
         const numValue = parseFloat(value);
         if (!isNaN(numValue) && numValue !== 0) {
           const unit = value.replace(numValue.toString(), '');
-          styleString += `${prop}: ${numValue / scaleFactor}${unit} !important; `;
+          styleString += prop + ': ' + (numValue / scaleFactor) + unit + ' !important; ';
         } else {
-          styleString += `${prop}: ${value} !important; `;
+          styleString += prop + ': ' + value + ' !important; ';
         }
       }
     });
 
     let transformOrigin = computedStyle.getPropertyValue('transform-origin');
     if (transformOrigin) {
-      styleString += `transform-origin: ${transformOrigin} !important; -webkit-transform-origin: ${transformOrigin} !important; `;
+      styleString += 'transform-origin: ' + transformOrigin + ' !important; -webkit-transform-origin: ' + transformOrigin + ' !important; ';
     }
 
     styleString += 'overflow: visible !important; max-width: none !important; max-height: none !important; clip: auto !important; clip-path: none !important; ';
@@ -287,7 +359,9 @@ function runCleanViewerInside() {
     const shouldScaleMargin = element.tagName === 'SPAN' &&
       element.classList &&
       element.classList.contains('_') &&
-      Array.from(element.classList).some(cls => /^_(?:\d+[a-z]*|[a-z]+\d*)$/i.test(cls));
+      Array.from(element.classList).some(function(cls) {
+        return /^_(?:\d+[a-z]*|[a-z]+\d*)$/i.test(cls);
+      });
 
     copyComputedStyle(element, clone, scaleFactor, hasTextClass, hasUnderscoreClass, heightScaleDivisor, 4, shouldScaleMargin, scaleFactor);
 
@@ -302,7 +376,7 @@ function runCleanViewerInside() {
     if (element.childNodes.length === 1 && element.childNodes[0].nodeType === 3) {
       clone.textContent = element.textContent;
     } else {
-      element.childNodes.forEach(child => {
+      element.childNodes.forEach(function(child) {
         if (child.nodeType === 1) {
           clone.appendChild(deepCloneWithStyles(child, scaleFactor, heightScaleDivisor));
         } else if (child.nodeType === 3) {
@@ -313,10 +387,11 @@ function runCleanViewerInside() {
     return clone;
   }
 
+  // Xây dựng viewer
   const viewerContainer = document.createElement('div');
   viewerContainer.id = 'clean-viewer-container';
 
-  pages.forEach((page, index) => {
+  pages.forEach(function(page, index) {
     const pc = page.querySelector('.pc');
     let width = 595.3;
     let height = 841.9;
@@ -339,7 +414,7 @@ function runCleanViewerInside() {
 
     const newPage = document.createElement('div');
     newPage.className = 'std-page';
-    newPage.id = `page-${index + 1}`;
+    newPage.id = 'page-' + (index + 1);
     newPage.setAttribute('data-page-number', index + 1);
     newPage.style.width = width + 'px';
     newPage.style.height = height + 'px';
@@ -359,7 +434,9 @@ function runCleanViewerInside() {
       const textLayer = document.createElement('div');
       textLayer.className = 'layer-text';
       const pcClone = deepCloneWithStyles(originalPc, SCALE_FACTOR, HEIGHT_SCALE_DIVISOR);
-      pcClone.querySelectorAll('img').forEach(img => img.style.display = 'none');
+      pcClone.querySelectorAll('img').forEach(function(img) {
+        img.style.display = 'none';
+      });
       textLayer.appendChild(pcClone);
       newPage.appendChild(textLayer);
     }
@@ -369,7 +446,7 @@ function runCleanViewerInside() {
 
   document.body.appendChild(viewerContainer);
 
-  setTimeout(() => {
+  setTimeout(function() {
     window.print();
   }, 1000);
 }
