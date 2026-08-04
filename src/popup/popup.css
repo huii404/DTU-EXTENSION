@@ -4,6 +4,7 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
+/* ✅ SỬA LẠI :root - ĐÚNG CÚ PHÁP */
 :root {
   /* DTU Theme */
   --dtu-red: #d52b1e;
@@ -11,7 +12,7 @@
   --dtu-red-light: rgba(213, 43, 30, 0.1);
 
   /* Studocu Theme */
-  --stu-orange: #FF6B00;  
+  --stu-orange: #FF6B00;
   --stu-yellow: #FFB000;
   --stu-light: #FFF8EB;
   --stu-dark: #3E1F00;
@@ -26,30 +27,62 @@
   --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
   --radius: 12px;
   --radius-sm: 8px;
-}
+}  /* ✅ ĐÃ CÓ DẤU ĐÓNG */
 
 * {
   box-sizing: border-box;
 }
 
 body {
-  width: 340px;
+  width: 380px;
+  max-height: 600px;
   margin: 0;
   padding: 0;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--bg);
   color: var(--text);
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
-/* ---------- Header ---------- */
+/* ============================================
+   CONTAINER CHÍNH - CÓ SCROLL
+   ============================================ */
+#app-container {
+  padding: 14px;
+  max-height: 500px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+/* Tùy chỉnh thanh cuộn */
+#app-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+#app-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#app-container::-webkit-scrollbar-thumb {
+  background: #ddd;
+  border-radius: 4px;
+}
+
+#app-container::-webkit-scrollbar-thumb:hover {
+  background: #bbb;
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
 .popup-header {
   background: var(--surface);
-  padding: 14px 16px;
+  padding: 12px 16px;
   border-bottom: 2px dashed #e0e0e0;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-shrink: 0;
 }
 
 .popup-header .brand {
@@ -103,27 +136,24 @@ body {
   background: #f0f0f0;
   padding: 3px 8px;
   border-radius: 20px;
+  flex-shrink: 0;
 }
 
-/* ---------- Container ---------- */
-#app-container {
-  padding: 14px;
-  min-height: 280px;
-}
-
-/* ---------- Feature Cards (Home) ---------- */
+/* ============================================
+   FEATURE CARDS (HOME)
+   ============================================ */
 .feature-card {
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 14px;
+  padding: 12px 14px;
   border: none;
   border-radius: var(--radius);
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   text-align: left;
   background: var(--surface);
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   box-shadow: var(--shadow);
 }
 
@@ -137,15 +167,15 @@ body {
 }
 
 .feature-card .icon-box {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 14px;
+  margin-right: 12px;
   flex-shrink: 0;
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .feature-card.dtu .icon-box {
@@ -162,6 +192,7 @@ body {
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-width: 0;
 }
 
 .feature-card .info .title {
@@ -175,12 +206,16 @@ body {
   font-size: 11px;
   font-weight: 500;
   color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .feature-card .arrow {
   color: #ccc;
   font-size: 18px;
   transition: transform 0.2s;
+  flex-shrink: 0;
 }
 
 .feature-card:hover .arrow {
@@ -188,7 +223,9 @@ body {
   color: #999;
 }
 
-/* ---------- Back Button ---------- */
+/* ============================================
+   BACK BUTTON
+   ============================================ */
 .back-bar {
   display: flex;
   align-items: center;
@@ -196,13 +233,14 @@ body {
   padding: 0 0 12px 0;
   margin-bottom: 12px;
   border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
 .back-bar button {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 4px;
+  padding: 4px 8px;
   border-radius: 6px;
   display: flex;
   align-items: center;
@@ -223,19 +261,21 @@ body {
   color: var(--text);
 }
 
-/* ---------- Action Buttons (Sub-pages) ---------- */
+/* ============================================
+   ACTION BUTTONS
+   ============================================ */
 .action-btn {
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 12px;
+  padding: 10px 12px;
   border: none;
   border-radius: var(--radius);
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   text-align: left;
   background: var(--surface);
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   box-shadow: var(--shadow);
 }
 
@@ -249,15 +289,15 @@ body {
 }
 
 .action-btn .icon-circle {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 12px;
+  margin-right: 10px;
   flex-shrink: 0;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .action-btn.primary {
@@ -297,6 +337,8 @@ body {
 .action-btn .btn-info {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-width: 0;
 }
 
 .action-btn .btn-heading {
@@ -311,14 +353,16 @@ body {
   opacity: 0.9;
 }
 
-/* ---------- Form Elements (DTU) ---------- */
+/* ============================================
+   FORM ELEMENTS
+   ============================================ */
 .form-group {
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   font-size: 13px;
   font-weight: 600;
   color: var(--text);
@@ -331,7 +375,7 @@ body {
 .form-group select,
 .form-group textarea {
   width: 100%;
-  padding: 10px 12px;
+  padding: 8px 12px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   font-family: inherit;
@@ -349,28 +393,34 @@ body {
 }
 
 .form-group textarea {
-  min-height: 70px;
   resize: vertical;
+  min-height: 60px;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .form-group select {
   cursor: pointer;
 }
 
-/* ---------- Hint Text ---------- */
+/* ============================================
+   HINT TEXT
+   ============================================ */
 .hint-text {
   font-size: 11px;
   color: var(--text-muted);
   text-align: center;
-  margin: -4px 0 10px 0;
+  margin: -2px 0 8px 0;
   font-style: italic;
   font-weight: 500;
 }
 
-/* ---------- Status Indicator ---------- */
+/* ============================================
+   STATUS BAR
+   ============================================ */
 .status-bar {
-  margin-top: 16px;
-  padding: 10px;
+  margin-top: 12px;
+  padding: 8px 12px;
   background: var(--surface);
   border-radius: 20px;
   display: flex;
@@ -381,6 +431,7 @@ body {
   font-weight: 700;
   color: var(--text-muted);
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+  flex-shrink: 0;
 }
 
 .status-bar .dot {
@@ -389,6 +440,7 @@ body {
   border-radius: 50%;
   background: #22c55e;
   animation: pulse 2s infinite;
+  flex-shrink: 0;
 }
 
 @keyframes pulse {
@@ -396,24 +448,108 @@ body {
   50% { opacity: 0.4; }
 }
 
-/* ---------- Animations ---------- */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+/* ============================================
+   TOAST
+   ============================================ */
+#global-toast {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  z-index: 10000;
+  opacity: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+  white-space: nowrap;
+  max-width: 90%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-family: 'Inter', sans-serif;
 }
 
-.page-enter {
-  animation: fadeIn 0.25s ease-out forwards;
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 400px) {
+  body {
+    width: 340px;
+  }
+
+  .feature-card .info .desc {
+    font-size: 10px;
+  }
+
+  .action-btn .btn-heading {
+    font-size: 13px;
+  }
+
+  .action-btn .btn-sub {
+    font-size: 10px;
+  }
 }
 
-/* ---------- Scrollbar ---------- */
-::-webkit-scrollbar {
-  width: 4px;
+
+/* ============================================
+   TEXT CLEANER - STYLES
+   ============================================ */
+
+/* Container chính */
+.textcleaner-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
-::-webkit-scrollbar-track {
-  background: transparent;
+
+/* Textarea trong Text Cleaner */
+.textcleaner-container textarea {
+  font-size: 13px;
+  line-height: 1.6;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
-::-webkit-scrollbar-thumb {
-  background: #ddd;
-  border-radius: 4px;
+
+/* Detection box */
+#tc-detection {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+#tc-detection-text {
+  font-weight: 500;
+  color: var(--text);
+}
+
+/* Status bar trong Text Cleaner */
+#tc-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: pulse 2s infinite;
+  flex-shrink: 0;
+}
+
+/* Stats text */
+#tc-stats {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* Button hover effect cho Text Cleaner */
+#tc-clean-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(46, 204, 113, 0.3);
+}
+
+#tc-copy-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
 }

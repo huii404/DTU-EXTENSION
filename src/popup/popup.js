@@ -2,13 +2,11 @@
 // Multi Tool Hub - Popup Router
 // ============================================
 
-// Khai báo PAGES trước để các feature module đăng ký vào
 const PAGES = {
   home: {
     render: renderHome,
     title: ''
   }
-  // dtu và studocu sẽ được đăng ký bởi feature modules
 };
 
 let currentPage = 'home';
@@ -22,6 +20,7 @@ function navigateTo(pageName) {
   }
 
   currentPage = pageName;
+  container.scrollTop = 0;
 
   if (pageName === 'home') {
     container.innerHTML = page.render();
@@ -68,12 +67,29 @@ function renderHome() {
         <span class="arrow">›</span>
       </button>
 
-
       <button class="feature-card" data-page="scribd" style="border-left: 4px solid #0077B5;">
-        <div class="icon-box" style="background: linear-gradient(135deg, #0077B5, #00A0DC);">📄</div>
+        <div class="icon-box" style="background: linear-gradient(135deg, #0077B5, #00A0DC); color:white;">📄</div>
         <div class="info">
           <span class="title">Scribd Tools</span>
           <span class="desc">Tải PDF, xóa watermark, lưu ảnh</span>
+        </div>
+        <span class="arrow">›</span>
+      </button>
+
+      <button class="feature-card" data-page="screenshot" style="border-left: 4px solid #7C3AED;">
+        <div class="icon-box" style="background: linear-gradient(135deg, #7C3AED, #A78BFA); color:white;">📸</div>
+        <div class="info">
+          <span class="title">Chụp ảnh Web</span>
+          <span class="desc">Chỉ nội dung trang, không UI trình duyệt</span>
+        </div>
+        <span class="arrow">›</span>
+      </button>
+
+      <button class="feature-card" data-page="textcleaner" style="border-left: 4px solid #2ECC71;">
+        <div class="icon-box" style="background: linear-gradient(135deg, #2ECC71, #27AE60); color:white;">🧹</div>
+        <div class="info">
+          <span class="title">Làm sạch Text</span>
+          <span class="desc">Xóa định dạng ẩn, HTML, Markdown, bảng</span>
         </div>
         <span class="arrow">›</span>
       </button>

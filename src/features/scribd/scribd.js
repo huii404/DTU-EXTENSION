@@ -397,7 +397,7 @@ async function runScribdPDFWithLibraries() {
     downloadLink.download = 'Scribd_Document.pdf';
     document.body.appendChild(downloadLink);
     downloadLink.click();
-    
+      
     setTimeout(() => {
       document.body.removeChild(downloadLink);
       URL.revokeObjectURL(blobUrl);
