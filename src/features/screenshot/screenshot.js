@@ -2,6 +2,14 @@
 // Multi Tool Hub - Screenshot Feature (Popup Logic)
 // ============================================
 
+// ✅ Cấu hình cố định
+const SCREENSHOT_CONFIG = {
+  defaultFormat: 'png',     // Mặc định PNG
+  jpegQuality: 0.85,        // Chất lượng JPEG (không hiển thị)
+  maxDimension: 3000,       // Giới hạn kích thước tối đa
+  scale: 2,                 // Scale vừa đủ
+};
+
 PAGES.screenshot = {
   render: function() {
     return `
@@ -11,35 +19,17 @@ PAGES.screenshot = {
             <span class="icon">📐</span> Chọn chế độ chụp:
           </label>
           <select id="ss-mode">
-            <option value="fullpage">Toàn bộ trang</option>
-            <option value="viewport">Khung nhìn hiện tại</option>
-            <option value="element">Chọn phần tử (click chọn)</option>
+            <option value="viewport" selected>📱 Khung nhìn hiện tại</option>
+            <option value="fullpage">📄 Toàn bộ trang</option>
+            <option value="element">🎯 Chọn phần tử (click chọn)</option>
           </select>
-        </div>
-
-        <div class="form-group">
-          <label>
-            <span class="icon">📁</span> Định dạng:
-          </label>
-          <select id="ss-format">
-            <option value="png">PNG (trong suốt)</option>
-            <option value="jpeg">JPEG (nén)</option>
-          </select>
-        </div>
-
-        <div class="form-group" id="ss-quality-group">
-          <label>
-            <span class="icon">📏</span> Chất lượng (JPEG):
-          </label>
-          <input type="range" id="ss-quality" min="0.1" max="1" step="0.05" value="0.85">
-          <span id="ss-quality-label" style="font-size:12px;color:#888;">85%</span>
         </div>
 
         <button id="ss-capture-btn" class="action-btn primary" style="background: linear-gradient(135deg, #7C3AED, #A78BFA);">
           <div class="icon-circle">📸</div>
           <div class="btn-info">
             <span class="btn-heading">Chụp ảnh</span>
-            <span class="btn-sub">Chỉ nội dung trang web, không UI trình duyệt</span>
+            <span class="btn-sub">Định dạng PNG, chất lượng cao</span>
           </div>
         </button>
 
@@ -56,7 +46,7 @@ PAGES.screenshot = {
         </div>
 
         <div class="status-bar" style="margin-top:12px;">
-          <span class="dot"></span>
+          <span class="dot" id="ss-status-dot"></span>
           <span id="ss-status-text">Sẵn sàng chụp ảnh</span>
         </div>
       </div>
@@ -64,19 +54,11 @@ PAGES.screenshot = {
   },
 
   attachEvents: function() {
-    document.getElementById('ss-quality').addEventListener('input', function() {
-      document.getElementById('ss-quality-label').textContent = Math.round(this.value * 100) + '%';
-    });
-
-    document.getElementById('ss-format').addEventListener('change', function() {
-      const group = document.getElementById('ss-quality-group');
-      group.style.display = this.value === 'jpeg' ? 'block' : 'none';
-    });
-
     // === NÚT CHỤP ===
     document.getElementById('ss-capture-btn').addEventListener('click', async function() {
       const tab = await getCurrentTab();
       const statusText = document.getElementById('ss-status-text');
+      const statusDot = document.getElementById('ss-status-dot');
       
       if (!tab) {
         showToast('Không tìm thấy tab', 'error');
@@ -92,6 +74,7 @@ PAGES.screenshot = {
         showToast(msg, 'error');
         statusText.textContent = msg;
         statusText.style.color = '#e74c3c';
+        statusDot.style.background = '#e74c3c';
         return;
       }
 
@@ -100,12 +83,11 @@ PAGES.screenshot = {
         showToast(msg, 'error');
         statusText.textContent = msg;
         statusText.style.color = '#e74c3c';
+        statusDot.style.background = '#e74c3c';
         return;
       }
 
       const mode = document.getElementById('ss-mode').value;
-      const format = document.getElementById('ss-format').value;
-      const quality = parseFloat(document.getElementById('ss-quality').value);
 
       const btn = this;
       const originalText = btn.querySelector('.btn-heading').innerText;
@@ -114,6 +96,7 @@ PAGES.screenshot = {
       btn.style.pointerEvents = 'none';
       statusText.textContent = '⏳ Đang xử lý...';
       statusText.style.color = '#f39c12';
+      statusDot.style.background = '#f39c12';
 
       try {
         // Kiểm tra html2canvas
@@ -155,11 +138,15 @@ PAGES.screenshot = {
           }
         }
 
+        const startTime = performance.now();
+        
         const result = await chrome.scripting.executeScript({
           target: { tabId: tab.id },
           func: captureWebContentFull,
-          args: [mode, format, quality]
+          args: [mode, SCREENSHOT_CONFIG.defaultFormat, SCREENSHOT_CONFIG.jpegQuality, SCREENSHOT_CONFIG.scale, SCREENSHOT_CONFIG.maxDimension]
         });
+
+        const elapsed = (performance.now() - startTime).toFixed(0);
 
         if (result && result[0] && result[0].result) {
           const imageData = result[0].result;
@@ -168,6 +155,7 @@ PAGES.screenshot = {
             showToast('❌ ' + imageData.error, 'error');
             statusText.textContent = '❌ ' + imageData.error;
             statusText.style.color = '#e74c3c';
+            statusDot.style.background = '#e74c3c';
           } else {
             const preview = document.getElementById('ss-preview');
             const img = document.getElementById('ss-preview-img');
@@ -176,9 +164,11 @@ PAGES.screenshot = {
             preview.dataset.dataUrl = imageData.dataUrl;
             preview.dataset.filename = imageData.filename;
             
-            showToast(`✅ Đã chụp ${imageData.filename}`, 'success');
-            statusText.textContent = `✅ ${imageData.width}×${imageData.height}`;
+            const sizeKB = (imageData.dataUrl.length * 3/4 / 1024).toFixed(1);
+            showToast(`✅ Đã chụp (${elapsed}ms, ${sizeKB}KB)`, 'success');
+            statusText.textContent = `✅ ${imageData.width}×${imageData.height} - ${elapsed}ms`;
             statusText.style.color = '#27ae60';
+            statusDot.style.background = '#27ae60';
           }
         }
       } catch (err) {
@@ -187,6 +177,7 @@ PAGES.screenshot = {
         showToast('❌ ' + errorMsg, 'error');
         statusText.textContent = '❌ ' + errorMsg;
         statusText.style.color = '#e74c3c';
+        statusDot.style.background = '#e74c3c';
       }
 
       btn.querySelector('.btn-heading').innerText = originalText;
@@ -215,7 +206,7 @@ PAGES.screenshot = {
       }
     });
 
-    // === SAO CHÉP (ĐÃ SỬA) ===
+    // === SAO CHÉP ===
     document.getElementById('ss-copy-btn').addEventListener('click', async function() {
       const preview = document.getElementById('ss-preview');
       const dataUrl = preview.dataset.dataUrl;
@@ -284,7 +275,7 @@ PAGES.screenshot = {
 // HÀM CAPTURE ĐẦY ĐỦ (injected vào tab)
 // ============================================
 
-function captureWebContentFull(mode, format, quality) {
+function captureWebContentFull(mode, format, quality, scale, maxDim) {
   function doCapture(element, format, quality, filename, resolve) {
     setTimeout(function() {
       if (typeof html2canvas === 'undefined') {
@@ -292,19 +283,19 @@ function captureWebContentFull(mode, format, quality) {
         try {
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
-          const scale = Math.min(window.devicePixelRatio || 2, 2);
+          const s = Math.min(window.devicePixelRatio || 2, scale);
           
           if (mode === 'viewport') {
-            canvas.width = Math.min(window.innerWidth * scale, 3000);
-            canvas.height = Math.min(window.innerHeight * scale, 3000);
+            canvas.width = Math.min(window.innerWidth * s, maxDim);
+            canvas.height = Math.min(window.innerHeight * s, maxDim);
           } else {
-            canvas.width = Math.min(document.documentElement.scrollWidth * scale, 3000);
-            canvas.height = Math.min(document.documentElement.scrollHeight * scale, 3000);
+            canvas.width = Math.min(document.documentElement.scrollWidth * s, maxDim);
+            canvas.height = Math.min(document.documentElement.scrollHeight * s, maxDim);
           }
           
-          ctx.scale(scale, scale);
+          ctx.scale(s, s);
           ctx.fillStyle = '#ffffff';
-          ctx.fillRect(0, 0, canvas.width / scale, canvas.height / scale);
+          ctx.fillRect(0, 0, canvas.width / s, canvas.height / s);
           
           const mimeType = format === 'jpeg' ? 'image/jpeg' : 'image/png';
           const ext = format === 'jpeg' ? 'jpg' : 'png';
@@ -324,19 +315,19 @@ function captureWebContentFull(mode, format, quality) {
       }
 
       // html2canvas với tối ưu
-      const scale = Math.min(window.devicePixelRatio || 2, 2);
-      const maxDim = 3000;
+      const s = Math.min(window.devicePixelRatio || 2, scale);
+      const maxD = maxDim;
       
       const options = {
-        scale: scale,
+        scale: s,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
         logging: false,
-        width: Math.min(element.scrollWidth || element.clientWidth, maxDim / scale),
-        height: Math.min(element.scrollHeight || element.clientHeight, maxDim / scale),
-        windowWidth: Math.min(window.innerWidth, maxDim / scale),
-        windowHeight: Math.min(window.innerHeight, maxDim / scale),
+        width: Math.min(element.scrollWidth || element.clientWidth, maxD / s),
+        height: Math.min(element.scrollHeight || element.clientHeight, maxD / s),
+        windowWidth: Math.min(window.innerWidth, maxD / s),
+        windowHeight: Math.min(window.innerHeight, maxD / s),
         ignoreElements: function(el) {
           return el.classList && (
             el.classList.contains('ad') ||
@@ -357,8 +348,8 @@ function captureWebContentFull(mode, format, quality) {
       };
 
       if (mode === 'viewport') {
-        options.width = Math.min(window.innerWidth, maxDim / scale);
-        options.height = Math.min(window.innerHeight, maxDim / scale);
+        options.width = Math.min(window.innerWidth, maxD / s);
+        options.height = Math.min(window.innerHeight, maxD / s);
         options.x = window.scrollX;
         options.y = window.scrollY;
       }
@@ -395,6 +386,7 @@ function captureWebContentFull(mode, format, quality) {
           break;
           
         case 'viewport':
+        default:
           targetElement = document.documentElement;
           filename = 'viewport_' + Date.now() + '.' + (format === 'jpeg' ? 'jpg' : 'png');
           break;
@@ -411,8 +403,8 @@ function captureWebContentFull(mode, format, quality) {
             }
             selected = el;
             if (el) {
-              el.style.outline = '3px solid #7C3AED';
-              el.style.outlineOffset = '2px';
+              el.style.outline = '2px solid #7C3AED';
+              el.style.outlineOffset = '1px';
             }
           };
 
@@ -467,21 +459,21 @@ function captureWebContentFull(mode, format, quality) {
           div.id = 'ss-element-hint';
           div.style.cssText = `
             position: fixed;
-            bottom: 30px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(124, 58, 237, 0.95);
+            background: rgba(124, 58, 237, 0.92);
             color: white;
-            padding: 12px 24px;
-            border-radius: 10px;
+            padding: 8px 16px;
+            border-radius: 8px;
             font-family: sans-serif;
-            font-size: 14px;
+            font-size: 13px;
             z-index: 999999;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             pointer-events: none;
             text-align: center;
           `;
-          div.innerHTML = '🖱️ Click vào phần tử &nbsp;|&nbsp; <kbd style="background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:4px;">ESC</kbd> hủy';
+          div.innerHTML = '🖱️ Click chọn phần tử &nbsp;|&nbsp; <kbd style="background:rgba(255,255,255,0.2);padding:1px 6px;border-radius:3px;">ESC</kbd> hủy';
           document.body.appendChild(div);
 
           document.addEventListener('mousemove', mouseMoveHandler);
@@ -491,14 +483,11 @@ function captureWebContentFull(mode, format, quality) {
           timeoutId = setTimeout(() => {
             if (targetElement === null) {
               cleanup();
-              resolve({ error: 'Hết thời gian (30s)' });
+              resolve({ error: 'Hết thời gian' });
             }
-          }, 30000);
+          }, 20000);
           
           return;
-          
-        default:
-          targetElement = document.documentElement;
       }
 
       if (targetElement) {
