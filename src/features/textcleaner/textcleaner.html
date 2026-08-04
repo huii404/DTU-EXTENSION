@@ -3,45 +3,39 @@
      ============================================ -->
 
 <div class="textcleaner-container">
-  <div class="form-group">
-    <label>
-      <span class="icon">📝</span> Dán văn bản cần làm sạch:
-    </label>
-    <textarea id="tc-input" rows="3" placeholder="Paste text with HTML, Markdown, tables..."></textarea>
-  </div>
+  <!-- Nút lấy dữ liệu từ clipboard -->
+  <button id="tc-paste-btn" class="action-btn primary" style="width:100%; padding:10px 12px; background: linear-gradient(135deg, #2ECC71, #27AE60); margin-bottom:10px;">
+    <span style="font-size:16px; margin-right:8px;">📋</span>
+    <span>Dán văn bản từ clipboard</span>
+    <span style="margin-left:auto; font-size:11px; opacity:0.7;">Ctrl+V</span>
+  </button>
 
-  <div style="display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
-    <select id="tc-level" style="flex:1; padding:8px 12px; border:1px solid var(--border); border-radius:var(--radius-sm); font-family:inherit; font-size:13px; background:var(--surface); color:var(--text); cursor:pointer; min-width:120px;">
+  <!-- Cấp độ lọc + Nút làm sạch -->
+  <div style="display:flex; gap:8px; margin-bottom:10px;">
+    <select id="tc-level" style="flex:1; padding:8px 12px; border:1px solid var(--border); border-radius:var(--radius-sm); font-family:inherit; font-size:13px; background:var(--surface); color:var(--text); cursor:pointer;">
       <option value="BASIC">🔰 Cơ bản</option>
       <option value="STANDARD" selected>⭐ Tiêu chuẩn</option>
       <option value="ADVANCED">🚀 Nâng cao</option>
     </select>
     
-    <button id="tc-clean-btn" class="action-btn primary" style="flex:1; padding:8px 12px; background: linear-gradient(135deg, #2ECC71, #27AE60); margin-bottom:0;">
-      <span class="icon-circle" style="font-size:14px;">🧹</span>
-      <span>Làm sạch</span>
-    </button>
-    
-    <button id="tc-copy-btn" class="action-btn secondary" style="flex:0.6; padding:8px 12px; margin-bottom:0;">
-      <span>📋 Copy</span>
+    <button id="tc-clean-btn" class="action-btn primary" style="flex:1; padding:8px 12px; background: linear-gradient(135deg, #3498db, #2980b9); margin-bottom:0;">
+      <span style="font-size:14px; margin-right:4px;">🧹</span>
+      <span>Làm sạch & Copy</span>
     </button>
   </div>
 
-  <div class="form-group">
-    <label>
-      <span class="icon">✨</span> Kết quả:
-      <span id="tc-stats" style="font-size:11px; color:var(--text-muted); font-weight:400; margin-left:8px;"></span>
+  <!-- Kết quả -->
+  <div class="form-group" style="margin-bottom:8px;">
+    <label style="font-size:12px; color:var(--text-muted);">
+      <span>✨</span> Kết quả:
+      <span id="tc-stats" style="font-weight:400; margin-left:8px;"></span>
     </label>
-    <textarea id="tc-output" rows="3" readonly placeholder="Clean text will appear here..."></textarea>
+    <textarea id="tc-output" rows="3" readonly placeholder="Kết quả sẽ hiển thị ở đây..." style="background:#f8f9fa; cursor:default;"></textarea>
   </div>
 
-  <div id="tc-detection" style="display:none; margin-bottom:8px; padding:8px 12px; background:#f8f9fa; border-radius:var(--radius-sm); font-size:12px; color:var(--text-muted);">
-    <span style="font-weight:600;">🔍 Phát hiện:</span>
-    <span id="tc-detection-text"></span>
-  </div>
-
+  <!-- Status -->
   <div class="status-bar">
     <span class="dot" id="tc-status-dot"></span>
-    <span id="tc-status">Dán text và bấm "Làm sạch"</span>
+    <span id="tc-status">Sẵn sàng - Dán text từ clipboard</span>
   </div>
 </div>

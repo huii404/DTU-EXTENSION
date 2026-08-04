@@ -1,0 +1,45 @@
+<!-- ============================================
+     Multi Tool Hub - DTU Student Hub UI
+     ============================================ -->
+
+<div class="dtu-hub">
+  <!-- Danh sách các skill -->
+  <div id="dtu-skill-list">
+    <button class="dtu-skill-btn" data-skill="rating" style="border-left: 4px solid #d52b1e;">
+      <div class="dtu-skill-icon" style="background: linear-gradient(135deg, #d52b1e, #ff6b6b);">
+        ⭐
+      </div>
+      <div class="dtu-skill-info">
+        <span class="dtu-skill-title">Đánh giá giảng viên</span>
+        <span class="dtu-skill-desc">Tự động điền form khảo sát giảng viên (câu 1-53)</span>
+      </div>
+      <span class="dtu-skill-arrow">›</span>
+    </button>
+
+    <!-- 🔮 Các skill mở rộng sau này -->
+    <!--
+    <button class="dtu-skill-btn" data-skill="grade" style="border-left: 4px solid #2980b9;">
+      <div class="dtu-skill-icon" style="background: linear-gradient(135deg, #2980b9, #3498db);">
+        📊
+      </div>
+      <div class="dtu-skill-info">
+        <span class="dtu-skill-title">Xem điểm</span>
+        <span class="dtu-skill-desc">Xem điểm các môn học</span>
+      </div>
+      <span class="dtu-skill-arrow">›</span>
+    </button>
+    -->
+  </div>
+
+  <!-- Status -->
+  <div class="status-bar" style="margin-top:12px;">
+    <span class="dot"></span>
+    <span>Sẵn sàng hoạt động</span>
+  </div>
+
+  <!-- Skill content -->
+  <div id="dtu-skill-content" style="display:none; margin-top:12px; padding-top:12px; border-top:1px solid var(--border);">
+    <!-- ❌ XÓA NÚT QUAY LẠI Ở ĐÂY -->
+    <div id="dtu-skill-body"></div>
+  </div>
+</div>

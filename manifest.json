@@ -8,7 +8,8 @@
     "scripting",
     "cookies",
     "downloads",
-    "clipboardWrite"
+    "clipboardWrite",
+    "clipboardRead"
   ],
   "host_permissions": [
     "https://mydtu.duytan.edu.vn/*",
@@ -21,13 +22,43 @@
   "action": {
     "default_popup": "src/popup/popup.html"
   },
+  "commands": {
+    "open-dtu": {
+      "suggested_key": {
+        "default": "Alt+Shift+D",
+        "mac": "Alt+Shift+D"
+      },
+      "description": "Mở skill SINHVIEN DTU"
+    },
+    "open-studocu": {
+      "suggested_key": {
+        "default": "Alt+Shift+S",
+        "mac": "Alt+Shift+S"
+      },
+      "description": "Mở skill Studocu Tools"
+    },
+    "open-scribd": {
+      "suggested_key": {
+        "default": "Alt+Shift+P",
+        "mac": "Alt+Shift+P"
+      },
+      "description": "Mở skill Scribd Tools"
+    },
+    "open-screenshot": {
+      "suggested_key": {
+        "default": "Alt+Shift+C",
+        "mac": "Alt+Shift+C"
+      },
+      "description": "Mở skill Chụp ảnh Web"
+    }
+  },
   "content_scripts": [
     {
       "matches": [
         "https://mydtu.duytan.edu.vn/sites/index.aspx?p=home_ratingform*"
       ],
       "js": [
-        "src/features/dtu-rating/dtu-content.js"
+        "src/features/dtu-univer/content/dtu-content.js"
       ],
       "run_at": "document_idle"
     },
@@ -64,7 +95,10 @@
         "styles/viewer-styles.css",
         "libs/html2canvas/html2canvas.min.js",
         "libs/jsPDF/jspdf.umd.min.js",
-        "src/features/textcleaner/textcleaner.html"
+        "src/features/textcleaner/textcleaner.html",
+        "src/features/dtu-univer/dtu-univer.html",
+        "src/features/dtu-univer/skills/rating/rating.html",
+        "src/features/qrcode/qrcode.html"
       ],
       "matches": [
         "*://*.studocu.com/*",

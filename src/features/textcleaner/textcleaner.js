@@ -142,15 +142,10 @@ const TextCleanerEngine = {
   // ==========================================
   cleanCodeBlocks: function(text) {
     let result = text;
-    
-    // Xóa code block ```...``` nhưng giữ nội dung
     result = result.replace(/```([\s\S]*?)```/g, function(match, code) {
       return code.trim();
     });
-    
-    // Xóa inline code `...` nhưng giữ nội dung
     result = result.replace(/`([^`]+)`/g, '$1');
-    
     return result;
   },
 
@@ -404,89 +399,6 @@ const TextCleanerEngine = {
       .replace(/[ \t]+$/gm, '')
       .replace(/\n{3,}/g, '\n\n')
       .replace(/^\s+|\s+$/g, '');
-  },
-
-  // ==========================================
-  // PHÁT HIỆN ĐỊNH DẠNG
-  // ==========================================
-  detect: function(text) {
-    const result = {
-      hasHtml: false,
-      hasMarkdown: false,
-      hasUnicodeControl: false,
-      hasTable: false,
-      hasBullets: false,
-      hasNumbering: false,
-      hasQuotes: false,
-      hasSeparators: false,
-      hasEmoji: false,
-      hasBoxDrawing: false,
-      hasArrows: false,
-      hasCodeBlock: false,
-      details: []
-    };
-    
-    if (/<[a-z][\s\S]*>/i.test(text) || /&[a-zA-Z]+;/.test(text)) {
-      result.hasHtml = true;
-      result.details.push('HTML tags');
-    }
-    
-    if (/\*\*|__|```|`|\[.*\]\(/.test(text)) {
-      result.hasMarkdown = true;
-      result.details.push('Markdown');
-    }
-    
-    if (/[\u200B-\u200F\uFEFF\u2060\u00AD]/.test(text)) {
-      result.hasUnicodeControl = true;
-      result.details.push('Unicode control chars');
-    }
-    
-    if (/\|.*\|/.test(text) || /[\+\-]{10,}/.test(text) || /<table/i.test(text)) {
-      result.hasTable = true;
-      result.details.push('Table');
-    }
-    
-    if (/^[\s]*[•◦▪▫●○◼◻◆◇⏺️]\s/m.test(text)) {
-      result.hasBullets = true;
-      result.details.push('Bullets');
-    }
-    
-    if (/^[\s]*\d+[.)]\s/m.test(text) || /^[\s]*[a-zA-Z][.)]\s/m.test(text)) {
-      result.hasNumbering = true;
-      result.details.push('Numbering');
-    }
-    
-    if (/^[\s]*>+\s/m.test(text) || /^[\s]*\[[ x]\].*/m.test(text)) {
-      result.hasQuotes = true;
-      result.details.push('Quotes/Checkbox');
-    }
-    
-    if (/^[\s]*[-=*_~]{3,}\s*$/m.test(text)) {
-      result.hasSeparators = true;
-      result.details.push('Separators');
-    }
-    
-    if (/[\u{1F600}-\u{1F64F}]/u.test(text)) {
-      result.hasEmoji = true;
-      result.details.push('Emoji');
-    }
-    
-    if (/[\u2500-\u257F]/.test(text)) {
-      result.hasBoxDrawing = true;
-      result.details.push('Box drawing');
-    }
-    
-    if (/[\u2190-\u21FF]/.test(text)) {
-      result.hasArrows = true;
-      result.details.push('Arrows');
-    }
-    
-    if (/```|`[^`]+`/.test(text)) {
-      result.hasCodeBlock = true;
-      result.details.push('Code blocks');
-    }
-    
-    return result;
   }
 };
 
@@ -501,24 +413,28 @@ async function loadTextCleanerHTML() {
     textCleanerHTML = await response.text();
   } catch (e) {
     console.error('Không thể load textcleaner.html:', e);
-    // Fallback HTML nếu không load được
     textCleanerHTML = `
       <div class="textcleaner-container">
-        <div class="form-group">
-          <label><span class="icon">📝</span> Dán văn bản cần làm sạch:</label>
-          <textarea id="tc-input" rows="6" placeholder="Paste text..."></textarea>
-        </div>
-        <button id="tc-clean-btn" class="action-btn primary" style="background: linear-gradient(135deg, #2ECC71, #27AE60);">
-          <span class="icon-circle">🧹</span>
-          <span>Làm sạch</span>
+        <button id="tc-paste-btn" class="action-btn primary" style="width:100%; padding:10px; background: linear-gradient(135deg, #2ECC71, #27AE60); margin-bottom:10px;">
+          📋 Dán văn bản từ clipboard
         </button>
+        <div style="display:flex; gap:8px; margin-bottom:10px;">
+          <select id="tc-level" style="flex:1; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm);">
+            <option value="BASIC">🔰 Cơ bản</option>
+            <option value="STANDARD" selected>⭐ Tiêu chuẩn</option>
+            <option value="ADVANCED">🚀 Nâng cao</option>
+          </select>
+          <button id="tc-clean-btn" class="action-btn primary" style="flex:1; padding:8px; background: linear-gradient(135deg, #3498db, #2980b9);">
+            🧹 Làm sạch & Copy
+          </button>
+        </div>
         <div class="form-group">
-          <label><span class="icon">✨</span> Kết quả:</label>
-          <textarea id="tc-output" rows="6" readonly></textarea>
+          <label style="font-size:12px; color:var(--text-muted);">✨ Kết quả:</label>
+          <textarea id="tc-output" rows="3" readonly placeholder="Kết quả sẽ hiển thị ở đây..."></textarea>
         </div>
         <div class="status-bar">
           <span class="dot"></span>
-          <span id="tc-status">Dán text và bấm "Làm sạch"</span>
+          <span id="tc-status">Sẵn sàng</span>
         </div>
       </div>
     `;
@@ -534,29 +450,161 @@ PAGES.textcleaner = {
   },
 
   attachEvents: function() {
-    const input = document.getElementById('tc-input');
     const output = document.getElementById('tc-output');
     const status = document.getElementById('tc-status');
     const statusDot = document.getElementById('tc-status-dot');
     const stats = document.getElementById('tc-stats');
-    const detection = document.getElementById('tc-detection');
-    const detectionText = document.getElementById('tc-detection-text');
 
-    // Kiểm tra các element đã tồn tại chưa
-    if (!input || !output) {
+    if (!output) {
       console.error('[TextCleaner] DOM elements not found');
       return;
     }
 
-    // ===== NÚT LÀM SẠCH =====
+    // Biến lưu text gốc (ẩn)
+    let rawText = '';
+
+    // ==========================================
+    // 1. NÚT DÁN TỪ CLIPBOARD
+    // ==========================================
+    const pasteBtn = document.getElementById('tc-paste-btn');
+    if (pasteBtn) {
+      pasteBtn.addEventListener('click', async function() {
+        const originalText = this.innerText;
+        this.innerText = '⏳ Đang đọc...';
+        this.style.opacity = '0.7';
+        this.style.pointerEvents = 'none';
+
+        try {
+          let text = '';
+
+          // Thử đọc clipboard
+          try {
+            text = await navigator.clipboard.readText();
+          } catch (readErr) {
+            // Fallback: execCommand
+            try {
+              const tempInput = document.createElement('textarea');
+              tempInput.style.cssText = 'position:fixed;opacity:0;pointer-events:none;';
+              document.body.appendChild(tempInput);
+              tempInput.focus();
+              document.execCommand('paste');
+              text = tempInput.value;
+              document.body.removeChild(tempInput);
+            } catch (execErr) {
+              console.warn('[TextCleaner] execCommand error:', execErr);
+            }
+          }
+
+          if (text && text.trim()) {
+            rawText = text;
+            // Tự động clean
+            const cleanBtn = document.getElementById('tc-clean-btn');
+            if (cleanBtn) {
+              setTimeout(() => cleanBtn.click(), 150);
+            }
+            if (status) {
+              status.textContent = '✅ Đã lấy dữ liệu';
+              status.style.color = '#27ae60';
+              if (statusDot) statusDot.style.background = '#27ae60';
+            }
+          } else {
+            // Không có text → hướng dẫn dán thủ công
+            showToast('📝 Vui lòng dán thủ công (Ctrl+V)', 'info');
+            
+            // Tạo input tạm để dán thủ công
+            const tempInput = document.createElement('textarea');
+            tempInput.style.cssText = `
+              position: fixed;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              width: 80%;
+              height: 200px;
+              padding: 16px;
+              font-size: 14px;
+              border: 2px solid #2ECC71;
+              border-radius: 8px;
+              z-index: 99999;
+              background: white;
+              box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+              font-family: inherit;
+            `;
+            tempInput.placeholder = '📝 Dán văn bản vào đây... (Ctrl+V)';
+            document.body.appendChild(tempInput);
+            tempInput.focus();
+
+            // Xử lý khi dán
+            const pasteHandler = function(e) {
+              const pasted = e.clipboardData?.getData('text') || tempInput.value;
+              if (pasted && pasted.trim()) {
+                rawText = pasted;
+                document.body.removeChild(tempInput);
+                const cleanBtn = document.getElementById('tc-clean-btn');
+                if (cleanBtn) setTimeout(() => cleanBtn.click(), 150);
+                if (status) {
+                  status.textContent = '✅ Đã nhận dữ liệu';
+                  status.style.color = '#27ae60';
+                  if (statusDot) statusDot.style.background = '#27ae60';
+                }
+                showToast('✅ Đã nhận văn bản!', 'success');
+              }
+            };
+
+            tempInput.addEventListener('paste', pasteHandler);
+            tempInput.addEventListener('input', function() {
+              if (this.value.trim()) {
+                rawText = this.value;
+                document.body.removeChild(tempInput);
+                const cleanBtn = document.getElementById('tc-clean-btn');
+                if (cleanBtn) setTimeout(() => cleanBtn.click(), 150);
+                if (status) {
+                  status.textContent = '✅ Đã nhận dữ liệu';
+                  status.style.color = '#27ae60';
+                  if (statusDot) statusDot.style.background = '#27ae60';
+                }
+                showToast('✅ Đã nhận văn bản!', 'success');
+              }
+            });
+
+            // Tự động đóng sau 30s
+            setTimeout(() => {
+              if (document.body.contains(tempInput)) {
+                document.body.removeChild(tempInput);
+                if (status) {
+                  status.textContent = '⏰ Hết thời gian chờ';
+                  status.style.color = '#e74c3c';
+                  if (statusDot) statusDot.style.background = '#e74c3c';
+                }
+              }
+            }, 30000);
+          }
+
+        } catch (err) {
+          console.error('[TextCleaner] Clipboard error:', err);
+          showToast('❌ Lỗi clipboard. Vui lòng dán thủ công', 'error');
+          if (status) {
+            status.textContent = '❌ Lỗi đọc clipboard';
+            status.style.color = '#e74c3c';
+            if (statusDot) statusDot.style.background = '#e74c3c';
+          }
+        }
+
+        this.innerText = originalText;
+        this.style.opacity = '1';
+        this.style.pointerEvents = 'auto';
+      });
+    }
+
+    // ==========================================
+    // 2. NÚT LÀM SẠCH & COPY
+    // ==========================================
     const cleanBtn = document.getElementById('tc-clean-btn');
     if (cleanBtn) {
       cleanBtn.addEventListener('click', function() {
-        const text = input.value;
-        
-        if (!text.trim()) {
+        if (!rawText || !rawText.trim()) {
+          showToast('⚠️ Chưa có dữ liệu. Hãy dán từ clipboard trước.', 'warning');
           if (status) {
-            status.textContent = '⚠️ Vui lòng dán văn bản cần làm sạch';
+            status.textContent = '⚠️ Chưa có dữ liệu';
             status.style.color = '#f39c12';
             if (statusDot) statusDot.style.background = '#f39c12';
           }
@@ -566,24 +614,13 @@ PAGES.textcleaner = {
         const level = document.getElementById('tc-level')?.value || 'STANDARD';
         const startTime = performance.now();
         
-        // Phát hiện định dạng
-        const detectResult = TextCleanerEngine.detect(text);
-        if (detection && detectionText) {
-          if (detectResult.details.length > 0) {
-            detection.style.display = 'block';
-            detectionText.textContent = detectResult.details.join(' • ');
-          } else {
-            detection.style.display = 'none';
-          }
-        }
-        
         // Làm sạch
-        const result = TextCleanerEngine.clean(text, level);
+        const result = TextCleanerEngine.clean(rawText, level);
         const elapsed = (performance.now() - startTime).toFixed(1);
         
         output.value = result;
         
-        const inputLen = text.length;
+        const inputLen = rawText.length;
         const outputLen = result.length;
         const reduction = inputLen > 0 ? ((1 - outputLen / inputLen) * 100).toFixed(1) : 0;
         
@@ -591,74 +628,58 @@ PAGES.textcleaner = {
           stats.textContent = `${inputLen} → ${outputLen} ký tự (giảm ${reduction}%) • ${elapsed}ms`;
         }
         
-        if (status) {
-          status.textContent = `✅ Làm sạch thành công!`;
-          status.style.color = '#27ae60';
-          if (statusDot) statusDot.style.background = '#27ae60';
+        // Tự động copy
+        if (result && result.trim()) {
+          navigator.clipboard.writeText(result)
+            .then(() => {
+              if (status) {
+                status.textContent = `✅ Đã làm sạch & copy (${elapsed}ms)`;
+                status.style.color = '#27ae60';
+                if (statusDot) statusDot.style.background = '#27ae60';
+              }
+              showToast('📋 Đã copy kết quả!', 'success');
+            })
+            .catch(() => {
+              output.select();
+              document.execCommand('copy');
+              if (status) {
+                status.textContent = `✅ Đã làm sạch & copy (${elapsed}ms)`;
+                status.style.color = '#27ae60';
+                if (statusDot) statusDot.style.background = '#27ae60';
+              }
+              showToast('📋 Đã copy kết quả!', 'success');
+            });
+        } else {
+          if (status) {
+            status.textContent = '⚠️ Kết quả trống';
+            status.style.color = '#f39c12';
+            if (statusDot) statusDot.style.background = '#f39c12';
+          }
         }
       });
     }
 
-    // ===== NÚT COPY =====
-    const copyBtn = document.getElementById('tc-copy-btn');
-    if (copyBtn) {
-      copyBtn.addEventListener('click', function() {
-        const text = output.value;
-        if (!text) {
-          showToast('⚠️ Chưa có kết quả để copy', 'warning');
-          return;
-        }
-        
-        navigator.clipboard.writeText(text)
-          .then(() => {
-            showToast('📋 Đã copy vào clipboard!', 'success');
-            if (status) {
-              status.textContent = '📋 Đã copy!';
-              status.style.color = '#3498db';
-              if (statusDot) statusDot.style.background = '#3498db';
-            }
-          })
-          .catch(() => {
-            output.select();
-            document.execCommand('copy');
-            showToast('📋 Đã copy!', 'success');
-          });
-      });
-    }
-
-    // ===== TỰ ĐỘNG CLEAN KHI DÁN =====
-    if (input) {
-      input.addEventListener('paste', function() {
-        setTimeout(() => {
-          const cleanBtn = document.getElementById('tc-clean-btn');
-          if (cleanBtn) cleanBtn.click();
-        }, 100);
-      });
-
-      // ===== CLEAN KHI NHẤN CTRL+ENTER =====
-      input.addEventListener('keydown', function(e) {
-        if (e.ctrlKey && e.key === 'Enter') {
+    // ==========================================
+    // 3. PHÍM TẮT Ctrl+V
+    // ==========================================
+    document.addEventListener('keydown', function(e) {
+      if (e.ctrlKey && e.key === 'v') {
+        if (document.activeElement?.tagName !== 'TEXTAREA' && 
+            document.activeElement?.tagName !== 'INPUT') {
           e.preventDefault();
-          const cleanBtn = document.getElementById('tc-clean-btn');
-          if (cleanBtn) cleanBtn.click();
+          const pasteBtn = document.getElementById('tc-paste-btn');
+          if (pasteBtn) pasteBtn.click();
         }
-      });
+      }
+    });
 
-      // ===== RESET STATUS KHI NHẬP =====
-      input.addEventListener('input', function() {
-        if (status && status.textContent.includes('✅')) {
-          status.textContent = '✏️ Đang chỉnh sửa...';
-          status.style.color = '#f39c12';
-          if (statusDot) statusDot.style.background = '#f39c12';
-        }
-      });
-    }
-
-    // ===== CLEAN KHI THAY ĐỔI CẤP ĐỘ =====
+    // ==========================================
+    // 4. CLEAN KHI THAY ĐỔI CẤP ĐỘ
+    // ==========================================
     const levelSelect = document.getElementById('tc-level');
     if (levelSelect) {
       levelSelect.addEventListener('change', function() {
-        if (input && input.value.trim()) {
+        if (rawText && rawText.trim()) {
           const cleanBtn = document.getElementById('tc-clean-btn');
           if (cleanBtn) cleanBtn.click();
         }

@@ -1,0 +1,38 @@
+/* ============================================
+   QR Code Generator - Styles
+   ============================================ */
+
+.qrcode-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ===== QR PREVIEW ===== */
+#qr-preview {
+  padding: 16px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+#qr-image {
+  max-width: 100%;
+  border-radius: 8px;
+  image-rendering: pixelated;
+}
+
+#qr-info {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 8px;
+  display: block;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 400px) {
+  #qr-preview {
+    padding: 12px;
+  }
+}

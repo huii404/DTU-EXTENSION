@@ -1,6 +1,9 @@
-<!-- DTU Rating Sub-page Template -->
+<!-- ============================================
+     DTU - Đánh giá giảng viên UI
+     ============================================ -->
+
 <div class="form-group">
-  <label for="dtu-rating-select">
+  <label>
     <span class="icon">⭐</span> Chọn xếp loại (câu 1 - 48):
   </label>
   <select id="dtu-rating-select">
@@ -14,10 +17,23 @@
 </div>
 
 <div class="form-group">
-  <label for="dtu-custom-text">
+  <label>
     <span class="icon">💬</span> Nội dung đánh giá (câu 49 - 52):
   </label>
-  <textarea id="dtu-custom-text" placeholder="Bỏ trống sẽ tự động điền nội dung mặc định theo xếp loại"></textarea>
+  <textarea id="dtu-custom-text" rows="3" placeholder="Bỏ trống sẽ tự động điền nội dung mặc định theo xếp loại"></textarea>
+</div>
+
+<div class="form-group">
+  <label>
+    <span class="icon">📊</span> Câu 53 - Mức độ hài lòng:
+  </label>
+  <select id="dtu-cau53-select">
+    <option value="1">1 - Rất không hài lòng</option>
+    <option value="2">2 - Không hài lòng</option>
+    <option value="3">3 - Phân vân</option>
+    <option value="4" selected>4 - Hài lòng</option>
+    <option value="5">5 - Rất hài lòng</option>
+  </select>
 </div>
 
 <button id="dtu-confirm-btn" class="action-btn dtu-primary">
