@@ -1,7 +1,3 @@
-// ============================================
-// Multi Tool Hub - Studocu Content Script
-// Auto-PDF workflow + URL param trigger
-// ============================================
 
 const CONFIG_STU = {
   AUTO_PDF_PARAM: 'banhmi_auto_pdf=1',

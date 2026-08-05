@@ -1,6 +1,3 @@
-// ============================================
-// Multi Tool Hub - Screenshot Feature (Popup Logic)
-// ============================================
 
 // ✅ Cấu hình cố định
 const SCREENSHOT_CONFIG = {

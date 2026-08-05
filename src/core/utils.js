@@ -1,6 +1,3 @@
-// ============================================
-// Multi Tool Hub - Shared Utilities
-// ============================================
 
 /**
  * Hiển thị thông báo toast trong popup

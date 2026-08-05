@@ -1,6 +1,3 @@
-// ============================================
-// Multi Tool Hub - DTU Rating Content Script
-// ============================================
 
 if (window.location.href.includes('https://mydtu.duytan.edu.vn/sites/index.aspx?p=home_ratingform')) {
     chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {

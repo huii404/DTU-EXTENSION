@@ -1,6 +1,3 @@
-// ============================================
-// Multi Tool Hub - Scribd Content Script
-// ============================================
 
 const CONFIG_SCRIBD = {
   AUTO_PDF_PARAM: 'banhmi_auto_pdf=1',

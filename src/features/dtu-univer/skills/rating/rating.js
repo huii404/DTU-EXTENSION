@@ -1,6 +1,4 @@
-// ============================================
-// DTU - Đánh giá giảng viên (Logic)
-// ============================================
+
 
 export function attachEvents() {
   const confirmBtn = document.getElementById('dtu-confirm-btn');
