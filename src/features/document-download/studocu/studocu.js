@@ -2,56 +2,39 @@
 // Multi Tool Hub - Studocu Feature (Popup Logic)
 // ============================================
 
+// ============================================
+// LOAD HTML TEMPLATE
+// ============================================
+let studocuHTML = '';
+
+async function loadStudocuHTML() {
+  try {
+    const response = await fetch(chrome.runtime.getURL('src/features/document-download/studocu/studocu.html'));
+    studocuHTML = await response.text();
+  } catch (e) {
+    console.error('Không thể load studocu.html:', e);
+    studocuHTML = `
+      <div class="studocu-container">
+        <p class="hint-text">(Mẹo: Cuộn chuột tới cuối tài liệu để tải toàn bộ trước khi Tải PDF)</p>
+        <button id="stu-pdf-btn" class="action-btn primary">Tải File PDF</button>
+        <button id="stu-clear-btn" class="action-btn secondary">Xem file & Xóa Watermark</button>
+        <button id="stu-capture-btn" class="action-btn secondary">Lưu thành Ảnh</button>
+      </div>
+    `;
+  }
+}
+
+// ============================================
+// POPUP PAGE - STUDOCU
+// ============================================
 PAGES.studocu = {
   render: function() {
-    return `
-      <p class="hint-text">(Mẹo: Cuộn chuột tới cuối tài liệu để tải toàn bộ trước khi Tải PDF)</p>
-
-      <button id="stu-pdf-btn" class="action-btn primary">
-        <div class="icon-circle">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/>
-            <line x1="12" x2="12" y1="15" y2="3"/>
-          </svg>
-        </div>
-        <div class="btn-info">
-          <span class="btn-heading">Tải File PDF</span>
-          <span class="btn-sub">Tự động dàn trang in sạch watermark</span>
-        </div>
-      </button>
-
-      <button id="stu-clear-btn" class="action-btn secondary">
-        <div class="icon-circle">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
-            <circle cx="12" cy="12" r="3"/>
-          </svg>
-        </div>
-        <div class="btn-info">
-          <span class="btn-heading">Xem file & Xóa Watermark</span>
-          <span class="btn-sub">Xóa cookie và reload trang</span>
-        </div>
-      </button>
-
-      <button id="stu-capture-btn" class="action-btn secondary">
-        <div class="icon-circle">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-            <circle cx="12" cy="13" r="4"/>
-          </svg>
-        </div>
-        <div class="btn-info">
-          <span class="btn-heading">Lưu thành Ảnh</span>
-          <span class="btn-sub">Tải trang đang hiển thị (.PNG)</span>
-        </div>
-      </button>
-    `;
+    return studocuHTML || '<p>Đang tải...</p>';
   },
 
   attachEvents: function() {
     // ========== 1. Tải File PDF ==========
-    document.getElementById('stu-pdf-btn').addEventListener('click', async function() {
+    document.getElementById('stu-pdf-btn')?.addEventListener('click', async function() {
       console.log('[Studocu] PDF button clicked');
       try {
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -61,39 +44,38 @@ PAGES.studocu = {
         }
 
         const btn = this;
-        const originalText = btn.querySelector('.btn-heading').innerText;
-        btn.querySelector('.btn-heading').innerText = '⏳ Đang xử lý...';
+        const originalText = btn.querySelector('.btn-heading')?.innerText || 'Tải File PDF';
+        const heading = btn.querySelector('.btn-heading');
+        if (heading) heading.innerText = '⏳ Đang xử lý...';
         btn.style.opacity = '0.7';
         btn.style.pointerEvents = 'none';
 
-        // Inject CSS
         await chrome.scripting.insertCSS({
           target: { tabId: tab.id },
           files: ['styles/viewer-styles.css']
         });
 
-        // Inject và chạy hàm tạo PDF
         await chrome.scripting.executeScript({
           target: { tabId: tab.id },
           func: runCleanViewerInside
         });
 
-        btn.querySelector('.btn-heading').innerText = originalText;
+        if (heading) heading.innerText = originalText;
         btn.style.opacity = '1';
         btn.style.pointerEvents = 'auto';
       } catch (err) {
         console.error('[Studocu] PDF error:', err);
         alert('❌ Lỗi: ' + err.message);
-        // Reset button
         const btn = this;
-        btn.querySelector('.btn-heading').innerText = 'Tải File PDF';
+        const heading = btn.querySelector('.btn-heading');
+        if (heading) heading.innerText = 'Tải File PDF';
         btn.style.opacity = '1';
         btn.style.pointerEvents = 'auto';
       }
     });
 
     // ========== 2. Xem file & Xóa Watermark ==========
-    document.getElementById('stu-clear-btn').addEventListener('click', async function() {
+    document.getElementById('stu-clear-btn')?.addEventListener('click', async function() {
       console.log('[Studocu] Clear button clicked');
       try {
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -103,12 +85,12 @@ PAGES.studocu = {
         }
 
         const btn = this;
-        const originalText = btn.querySelector('.btn-heading').innerText;
-        btn.querySelector('.btn-heading').innerText = '⏳ Đang xóa cookie...';
+        const originalText = btn.querySelector('.btn-heading')?.innerText || 'Xem file & Xóa Watermark';
+        const heading = btn.querySelector('.btn-heading');
+        if (heading) heading.innerText = '⏳ Đang xóa cookie...';
         btn.style.opacity = '0.7';
         btn.style.pointerEvents = 'none';
 
-        // Xóa tất cả cookies liên quan đến studocu
         const allCookies = await chrome.cookies.getAll({});
         let deletedCount = 0;
         for (const cookie of allCookies) {
@@ -126,24 +108,23 @@ PAGES.studocu = {
         }
         console.log(`[Studocu] Đã xóa ${deletedCount} cookie`);
 
-        // Reload trang
         await chrome.tabs.reload(tab.id);
-        // Reset button (popup sẽ đóng sau reload)
-        btn.querySelector('.btn-heading').innerText = originalText;
+        if (heading) heading.innerText = originalText;
         btn.style.opacity = '1';
         btn.style.pointerEvents = 'auto';
       } catch (err) {
         console.error('[Studocu] Clear error:', err);
         alert('❌ Lỗi: ' + err.message);
         const btn = this;
-        btn.querySelector('.btn-heading').innerText = 'Xem file & Xóa Watermark';
+        const heading = btn.querySelector('.btn-heading');
+        if (heading) heading.innerText = 'Xem file & Xóa Watermark';
         btn.style.opacity = '1';
         btn.style.pointerEvents = 'auto';
       }
     });
 
     // ========== 3. Lưu thành Ảnh ==========
-    document.getElementById('stu-capture-btn').addEventListener('click', function() {
+    document.getElementById('stu-capture-btn')?.addEventListener('click', function() {
       console.log('[Studocu] Capture button clicked');
       chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
         const tab = tabs[0];
@@ -189,7 +170,7 @@ PAGES.studocu = {
 };
 
 // ============================================
-// Hàm chụp ảnh (injected vào trang)
+// HÀM CHỤP ẢNH (injected vào trang)
 // ============================================
 function captureVisiblePages() {
   console.log('[Studocu] captureVisiblePages running');
@@ -219,7 +200,6 @@ function captureVisiblePages() {
                 item.element.querySelector('img[src*="studocu"]');
     if (img && img.src) {
       let src = img.src;
-      // Lấy ảnh chất lượng cao nhất từ srcset
       if (img.srcset) {
         const srcsetParts = img.srcset.split(',');
         if (srcsetParts.length > 0) {
@@ -249,7 +229,7 @@ function captureVisiblePages() {
 }
 
 // ============================================
-// Hàm tạo PDF Viewer (injected vào trang)
+// HÀM TẠO PDF VIEWER (injected vào trang)
 // ============================================
 function runCleanViewerInside() {
   console.log('[Studocu] runCleanViewerInside running');
@@ -387,7 +367,6 @@ function runCleanViewerInside() {
     return clone;
   }
 
-  // Xây dựng viewer
   const viewerContainer = document.createElement('div');
   viewerContainer.id = 'clean-viewer-container';
 
@@ -450,3 +429,8 @@ function runCleanViewerInside() {
     window.print();
   }, 1000);
 }
+
+// ============================================
+// LOAD HTML KHI KHỞI ĐỘNG
+// ============================================
+loadStudocuHTML();

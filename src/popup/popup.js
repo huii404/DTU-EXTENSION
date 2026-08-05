@@ -10,18 +10,7 @@ const PAGES = {
 };
 
 let currentPage = 'home';
-let SHORTCUTS = {};
-
-async function loadShortcuts() {
-  try {
-    const response = await chrome.runtime.sendMessage({ type: 'GET_SHORTCUTS' });
-    if (response) {
-      SHORTCUTS = response;
-    }
-  } catch (e) {
-    console.warn('[Popup] Không thể lấy shortcuts:', e);
-  }
-}
+let previousPage = null;  // ✅ Lưu trang trước đó
 
 function navigateTo(pageName) {
   const container = document.getElementById('app-container');
@@ -31,6 +20,11 @@ function navigateTo(pageName) {
     return;
   }
 
+  // ✅ Lưu trang hiện tại thành trang trước đó
+  if (currentPage !== pageName) {
+    previousPage = currentPage;
+  }
+
   currentPage = pageName;
   container.scrollTop = 0;
 
@@ -38,7 +32,6 @@ function navigateTo(pageName) {
     container.innerHTML = page.render();
     attachHomeEvents();
   } else {
-    const shortcut = SHORTCUTS[pageName] || '';
     container.innerHTML = `
       <div class="page-enter">
         <div class="back-bar">
@@ -49,27 +42,28 @@ function navigateTo(pageName) {
             Quay lại
           </button>
           <span class="page-title">${page.title}</span>
-          ${shortcut ? `<span class="page-shortcut">⌨️ ${shortcut.replace('Ctrl+Shift+', '').replace('Alt+Shift+', '')}</span>` : ''}
         </div>
         ${page.render()}
       </div>
     `;
-    document.getElementById('backBtn').addEventListener('click', () => navigateTo('home'));
+    
+    // ✅ Xử lý nút back: quay về trang trước đó
+    document.getElementById('backBtn').addEventListener('click', () => {
+      if (previousPage && previousPage !== 'home') {
+        // Nếu trang trước không phải home → quay về trang đó
+        navigateTo(previousPage);
+      } else {
+        // Nếu không có trang trước → về home
+        navigateTo('home');
+      }
+    });
+    
     page.attachEvents && page.attachEvents();
   }
 }
 
 // ---------- HOME PAGE ----------
 function renderHome() {
-  function getShortcutBadge(pageName) {
-    const shortcut = SHORTCUTS[pageName];
-    if (shortcut) {
-      const short = shortcut.replace(/Ctrl\+Shift\+/g, '⌨️ ').replace(/Alt\+Shift\+/g, '');
-      return `<span class="shortcut-badge">${short}</span>`;
-    }
-    return '';
-  }
-
   return `
     <div class="page-enter">
       <!-- DTU Hub -->
@@ -80,33 +74,18 @@ function renderHome() {
           <span class="desc">Đánh giá giảng viên và các tiện ích sinh viên</span>
         </div>
         <span style="display:flex;align-items:center;gap:4px;">
-          ${getShortcutBadge('dtu')}
           <span class="arrow">›</span>
         </span>
       </button>
 
-      <!-- Studocu -->
-      <button class="feature-card studocu" data-page="studocu">
-        <div class="icon-box">📚</div>
+      <!-- Document Download -->
+      <button class="feature-card" data-page="document-download" style="border-left: 4px solid #FF6B00;">
+        <div class="icon-box" style="background: linear-gradient(135deg, #FF6B00, #0077B5); color:white;">📚</div>
         <div class="info">
-          <span class="title">Studocu Tools</span>
-          <span class="desc">Tải PDF, xóa watermark, lưu ảnh</span>
+          <span class="title">Tải tài liệu</span>
+          <span class="desc">Studocu & Scribd - Tải PDF, xóa watermark</span>
         </div>
         <span style="display:flex;align-items:center;gap:4px;">
-          ${getShortcutBadge('studocu')}
-          <span class="arrow">›</span>
-        </span>
-      </button>
-
-      <!-- Scribd -->
-      <button class="feature-card" data-page="scribd" style="border-left: 4px solid #0077B5;">
-        <div class="icon-box" style="background: linear-gradient(135deg, #0077B5, #00A0DC); color:white;">📄</div>
-        <div class="info">
-          <span class="title">Scribd Tools</span>
-          <span class="desc">Tải PDF, xóa watermark, lưu ảnh</span>
-        </div>
-        <span style="display:flex;align-items:center;gap:4px;">
-          ${getShortcutBadge('scribd')}
           <span class="arrow">›</span>
         </span>
       </button>
@@ -119,7 +98,6 @@ function renderHome() {
           <span class="desc">Chỉ nội dung trang, không UI trình duyệt</span>
         </div>
         <span style="display:flex;align-items:center;gap:4px;">
-          ${getShortcutBadge('screenshot')}
           <span class="arrow">›</span>
         </span>
       </button>
@@ -136,7 +114,7 @@ function renderHome() {
         </span>
       </button>
 
-      <!-- ✅ QR CODE -->
+      <!-- QR Code -->
       <button class="feature-card" data-page="qrcode" style="border-left: 4px solid #8e44ad;">
         <div class="icon-box" style="background: linear-gradient(135deg, #8e44ad, #9b59b6); color:white;">📱</div>
         <div class="info">
@@ -147,19 +125,6 @@ function renderHome() {
           <span class="arrow">›</span>
         </span>
       </button>
-
-      <!-- Shortcut hint -->
-      <div class="shortcut-hint">
-        💡 Phím tắt: 
-        ${Object.entries(SHORTCUTS).map(([page, shortcut]) => 
-          `<kbd>${shortcut.replace('Ctrl+Shift+', '').replace('Alt+Shift+', '')}</kbd>`
-        ).join(' ')}
-      </div>
-
-      <div class="status-bar">
-        <span class="dot"></span>
-        <span>Sẵn sàng hoạt động</span>
-      </div>
     </div>
   `;
 }
@@ -174,17 +139,6 @@ function attachHomeEvents() {
 }
 
 // ---------- INIT ----------
-document.addEventListener('DOMContentLoaded', async () => {
-  await loadShortcuts();
+document.addEventListener('DOMContentLoaded', () => {
   navigateTo('home');
-});
-
-// ===== LẮNG NGHE MESSAGE TỪ BACKGROUND =====
-chrome.runtime.onMessage.addListener((message) => {
-  if (message.type === 'NAVIGATE_TO') {
-    const page = message.payload.page;
-    if (PAGES[page]) {
-      navigateTo(page);
-    }
-  }
 });

@@ -2,19 +2,31 @@
 // Multi Tool Hub - Scribd Feature (Popup Logic)
 // ============================================
 
+// ============================================
+// LOAD HTML TEMPLATE
+// ============================================
 let scribdHTML = '';
 
-// Load HTML từ file
 async function loadScribdHTML() {
   try {
-    const response = await fetch(chrome.runtime.getURL('src/features/scribd/scribd.html'));
+    const response = await fetch(chrome.runtime.getURL('src/features/document-download/scribd/scribd.html'));
     scribdHTML = await response.text();
   } catch (e) {
     console.error('Không thể load scribd.html:', e);
-    scribdHTML = '<p class="hint-text">(Mẹo: Cuộn chuột tới cuối tài liệu để tải toàn bộ trước khi Tải PDF)</p>';
+    scribdHTML = `
+      <div class="scribd-container">
+        <p class="hint-text">(Mẹo: Cuộn chuột tới cuối tài liệu để tải toàn bộ trước khi Tải PDF)</p>
+        <button id="scribd-pdf-btn" class="action-btn primary" style="background: linear-gradient(135deg, #0077B5, #00A0DC);">Tải File PDF</button>
+        <button id="scribd-clear-btn" class="action-btn secondary" style="color: #0077B5;">Xem file & Xóa Watermark</button>
+        <button id="scribd-capture-btn" class="action-btn secondary" style="color: #0077B5;">Lưu thành Ảnh</button>
+      </div>
+    `;
   }
 }
 
+// ============================================
+// POPUP PAGE - SCRIBD
+// ============================================
 PAGES.scribd = {
   render: function() {
     return scribdHTML || '<p>Đang tải...</p>';
@@ -22,7 +34,7 @@ PAGES.scribd = {
 
   attachEvents: function() {
     // ========== 1. Tải File PDF ==========
-    document.getElementById('scribd-pdf-btn').addEventListener('click', async function() {
+    document.getElementById('scribd-pdf-btn')?.addEventListener('click', async function() {
       console.log('[Scribd] PDF button clicked');
       try {
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -32,12 +44,12 @@ PAGES.scribd = {
         }
 
         const btn = this;
-        const originalText = btn.querySelector('.btn-heading').innerText;
-        btn.querySelector('.btn-heading').innerText = '⏳ Đang xử lý...';
+        const originalText = btn.querySelector('.btn-heading')?.innerText || 'Tải File PDF';
+        const heading = btn.querySelector('.btn-heading');
+        if (heading) heading.innerText = '⏳ Đang xử lý...';
         btn.style.opacity = '0.7';
         btn.style.pointerEvents = 'none';
 
-        // Inject thư viện
         await chrome.scripting.executeScript({
           target: { tabId: tab.id },
           files: [
@@ -46,33 +58,32 @@ PAGES.scribd = {
           ]
         });
 
-        // Inject CSS
         await chrome.scripting.insertCSS({
           target: { tabId: tab.id },
           files: ['styles/viewer-styles.css']
         });
 
-        // Inject và chạy hàm tạo PDF
         await chrome.scripting.executeScript({
           target: { tabId: tab.id },
           func: runScribdPDFWithLibraries
         });
 
-        btn.querySelector('.btn-heading').innerText = originalText;
+        if (heading) heading.innerText = originalText;
         btn.style.opacity = '1';
         btn.style.pointerEvents = 'auto';
       } catch (err) {
         console.error('[Scribd] PDF error:', err);
         alert('❌ Lỗi: ' + err.message);
         const btn = this;
-        btn.querySelector('.btn-heading').innerText = 'Tải File PDF';
+        const heading = btn.querySelector('.btn-heading');
+        if (heading) heading.innerText = 'Tải File PDF';
         btn.style.opacity = '1';
         btn.style.pointerEvents = 'auto';
       }
     });
 
     // ========== 2. Xem file & Xóa Watermark ==========
-    document.getElementById('scribd-clear-btn').addEventListener('click', async function() {
+    document.getElementById('scribd-clear-btn')?.addEventListener('click', async function() {
       console.log('[Scribd] Clear button clicked');
       try {
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -82,12 +93,12 @@ PAGES.scribd = {
         }
 
         const btn = this;
-        const originalText = btn.querySelector('.btn-heading').innerText;
-        btn.querySelector('.btn-heading').innerText = '⏳ Đang xóa cookie...';
+        const originalText = btn.querySelector('.btn-heading')?.innerText || 'Xem file & Xóa Watermark';
+        const heading = btn.querySelector('.btn-heading');
+        if (heading) heading.innerText = '⏳ Đang xóa cookie...';
         btn.style.opacity = '0.7';
         btn.style.pointerEvents = 'none';
 
-        // Xóa cookies của Scribd
         const allCookies = await chrome.cookies.getAll({});
         let deletedCount = 0;
         for (const cookie of allCookies) {
@@ -105,23 +116,23 @@ PAGES.scribd = {
         }
         console.log(`[Scribd] Đã xóa ${deletedCount} cookie`);
 
-        // Reload trang
         await chrome.tabs.reload(tab.id);
-        btn.querySelector('.btn-heading').innerText = originalText;
+        if (heading) heading.innerText = originalText;
         btn.style.opacity = '1';
         btn.style.pointerEvents = 'auto';
       } catch (err) {
         console.error('[Scribd] Clear error:', err);
         alert('❌ Lỗi: ' + err.message);
         const btn = this;
-        btn.querySelector('.btn-heading').innerText = 'Xem file & Xóa Watermark';
+        const heading = btn.querySelector('.btn-heading');
+        if (heading) heading.innerText = 'Xem file & Xóa Watermark';
         btn.style.opacity = '1';
         btn.style.pointerEvents = 'auto';
       }
     });
 
     // ========== 3. Lưu thành Ảnh ==========
-    document.getElementById('scribd-capture-btn').addEventListener('click', function() {
+    document.getElementById('scribd-capture-btn')?.addEventListener('click', function() {
       console.log('[Scribd] Capture button clicked');
       chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
         const tab = tabs[0];
@@ -168,7 +179,6 @@ PAGES.scribd = {
 function captureScribdPages() {
   console.log('[Scribd] captureScribdPages running');
   
-  // Lấy tất cả trang
   const pages = [];
   const selectors = [
     '.page',
@@ -187,7 +197,6 @@ function captureScribdPages() {
   }
   
   if (pages.length === 0) {
-    // Scan tất cả div có class chứa "page"
     document.querySelectorAll('div').forEach(el => {
       if (el.className && typeof el.className === 'string') {
         if (el.className.toLowerCase().includes('page') && 
@@ -225,7 +234,6 @@ function captureScribdPages() {
 
   const imagesToDownload = [];
   visiblePages.forEach(function(item) {
-    // Tìm ảnh hoặc canvas trong page
     let img = item.element.querySelector('img');
     if (!img) {
       const canvas = item.element.querySelector('canvas');
@@ -254,7 +262,7 @@ function captureScribdPages() {
 }
 
 // ============================================
-// HÀM TẠO PDF CHO SCRIBD (CẢI TIẾN HOÀN CHỈNH)
+// HÀM TẠO PDF CHO SCRIBD
 // ============================================
 async function runScribdPDFWithLibraries() {
   console.log('[Scribd] runScribdPDFWithLibraries running');
@@ -266,7 +274,6 @@ async function runScribdPDFWithLibraries() {
   
   const { jsPDF } = window.jspdf || window;
   
-  // 1. Quét các phần tử trang trên Scribd
   let pages = [];
   const selectors = [
     '.outer_page',
@@ -302,7 +309,6 @@ async function runScribdPDFWithLibraries() {
 
   if (!confirm(`📄 Sẵn sàng tạo PDF cho ${pages.length} trang.\nBấm OK để bắt đầu...`)) return;
 
-  // Tạo khung thông báo tiến trình trên màn hình
   const progressBox = document.createElement('div');
   progressBox.style.cssText = `
     position: fixed; top: 20px; right: 20px; z-index: 999999;
@@ -326,11 +332,9 @@ async function runScribdPDFWithLibraries() {
       const page = pages[i];
       progressBox.innerText = `⏳ Đang xử lý trang ${i + 1}/${pages.length}...`;
       
-      // Cuộn tới từng trang để ép Scribd load ảnh
       page.scrollIntoView({ behavior: 'instant', block: 'center' });
       await new Promise(r => setTimeout(r, 300));
 
-      // Dọn dẹp overlay
       const removeSelectors = [
         '.paywall', '.overlay', '.banner', '.upsell',
         '.premium-banner', '.subscribe-banner', '.ad-container',
@@ -343,7 +347,6 @@ async function runScribdPDFWithLibraries() {
       page.style.filter = 'none';
       page.style.webkitFilter = 'none';
 
-      // Chụp hình trang
       const canvas = await html2canvas(page, {
         scale: 1.5,
         useCORS: true,
@@ -388,7 +391,6 @@ async function runScribdPDFWithLibraries() {
 
     progressBox.innerText = '💾 Đang xuất file PDF...';
 
-    // Tạo blob và kích hoạt lệnh tải tự động
     const pdfBlob = pdf.output('blob');
     const blobUrl = URL.createObjectURL(pdfBlob);
     
@@ -412,5 +414,7 @@ async function runScribdPDFWithLibraries() {
   }
 }
 
-// Load HTML khi khởi động
+// ============================================
+// LOAD HTML KHI KHỞI ĐỘNG
+// ============================================
 loadScribdHTML();

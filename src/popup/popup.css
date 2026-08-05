@@ -1,5 +1,5 @@
 /* ============================================
-   Multi Tool Hub - Popup Styles (Hiệu ứng mới)
+   Multi Tool Hub - Popup Styles
    ============================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
@@ -38,24 +38,24 @@ body {
 }
 
 /* ============================================
-   🌟 HIỆU ỨNG MỞ POPUP
+   CONTAINER
    ============================================ */
 #app-container {
   padding: 14px;
   max-height: 500px;
   overflow-y: auto;
   scroll-behavior: smooth;
-  animation: containerReveal 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation: containerReveal 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 @keyframes containerReveal {
   0% { 
     opacity: 0; 
-    transform: scale(0.92) translateY(15px) rotateX(-5deg);
+    transform: scale(0.95) translateY(15px);
   }
   100% { 
     opacity: 1; 
-    transform: scale(1) translateY(0) rotateX(0);
+    transform: scale(1) translateY(0);
   }
 }
 
@@ -70,7 +70,7 @@ body {
 }
 
 /* ============================================
-   🎨 HEADER - GLASSMORPHISM
+   HEADER
    ============================================ */
 .popup-header {
   padding: 12px 16px;
@@ -86,7 +86,6 @@ body {
   overflow: hidden;
 }
 
-/* Hiệu ứng ánh sáng chạy trên header */
 .popup-header::before {
   content: '';
   position: absolute;
@@ -94,7 +93,7 @@ body {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle at 30% 50%, rgba(255,255,255,0.15) 0%, transparent 60%);
+  background: radial-gradient(circle at 30% 50%, rgba(255,255,255,0.12) 0%, transparent 60%);
   animation: headerShine 8s linear infinite;
   pointer-events: none;
 }
@@ -124,14 +123,7 @@ body {
   font-size: 18px;
   font-weight: 800;
   flex-shrink: 0;
-  animation: iconFloat 3s ease-in-out infinite;
 }
-
-@keyframes iconFloat {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-4px) rotate(3deg); }
-}
-
 .popup-header .brand-text { display: flex; flex-direction: column; }
 .popup-header .brand-text h1 {
   font-size: 16px;
@@ -161,7 +153,7 @@ body {
 }
 
 /* ============================================
-   💳 FEATURE CARDS - NEUMORPHISM + HOVER
+   FEATURE CARDS
    ============================================ */
 .feature-card {
   display: flex;
@@ -174,13 +166,11 @@ body {
   text-align: left;
   background: var(--surface);
   margin-bottom: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.02);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
   transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   border: 1px solid rgba(255,255,255,0.8);
   position: relative;
   overflow: hidden;
-  
-  /* Opening animation */
   opacity: 0;
   animation: cardReveal 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   transform-origin: center;
@@ -191,8 +181,6 @@ body {
 .feature-card:nth-child(3) { animation-delay: 0.15s; }
 .feature-card:nth-child(4) { animation-delay: 0.20s; }
 .feature-card:nth-child(5) { animation-delay: 0.25s; }
-.feature-card:nth-child(6) { animation-delay: 0.30s; }
-.feature-card:nth-child(7) { animation-delay: 0.35s; }
 
 @keyframes cardReveal {
   0% { 
@@ -209,7 +197,6 @@ body {
   }
 }
 
-/* Hiệu ứng glow khi hover */
 .feature-card::before {
   content: '';
   position: absolute;
@@ -219,7 +206,7 @@ body {
   height: 100%;
   background: linear-gradient(90deg, 
     transparent, 
-    rgba(255,255,255,0.4), 
+    rgba(255,255,255,0.3), 
     transparent
   );
   transition: left 0.6s ease;
@@ -232,11 +219,10 @@ body {
 
 .feature-card:active { transform: scale(0.97); }
 
-/* ✅ HOVER - SANG TRỌNG, KHÔNG ẨN */
 .feature-card:hover {
   transform: translateY(-3px) scale(1.01);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.10), 0 4px 16px rgba(0, 0, 0, 0.04);
-  border-color: rgba(213, 43, 30, 0.15);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.10);
+  border-color: rgba(213, 43, 30, 0.12);
   background: linear-gradient(135deg, var(--surface), #faf8ff);
 }
 
@@ -258,15 +244,10 @@ body {
   color: #fff; 
   box-shadow: 0 4px 12px rgba(213, 43, 30, 0.25);
 }
-.feature-card.studocu .icon-box { 
-  background: linear-gradient(135deg, var(--stu-orange), var(--stu-yellow)); 
+.feature-card[data-page="document-download"] .icon-box { 
+  background: linear-gradient(135deg, #FF6B00, #0077B5); 
   color: #fff;
   box-shadow: 0 4px 12px rgba(255, 107, 0, 0.25);
-}
-.feature-card[data-page="scribd"] .icon-box { 
-  background: linear-gradient(135deg, #0077B5, #00A0DC); 
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(0, 119, 181, 0.25);
 }
 .feature-card[data-page="screenshot"] .icon-box { 
   background: linear-gradient(135deg, #7C3AED, #A78BFA); 
@@ -285,7 +266,7 @@ body {
 }
 
 .feature-card:hover .icon-box {
-  transform: scale(1.08) rotate(-4deg);
+  transform: scale(1.06) rotate(-3deg);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
@@ -295,9 +276,6 @@ body {
   font-weight: 700; 
   color: var(--text); 
   transition: color 0.3s;
-  display: flex;
-  align-items: center;
-  gap: 6px;
 }
 .feature-card .info .desc {
   font-size: 11px;
@@ -319,16 +297,8 @@ body {
   color: var(--text);
 }
 
-/* Card color on hover */
-.feature-card.dtu:hover .info .title { color: #d52b1e; }
-.feature-card.studocu:hover .info .title { color: #FF6B00; }
-.feature-card[data-page="scribd"]:hover .info .title { color: #0077B5; }
-.feature-card[data-page="screenshot"]:hover .info .title { color: #7C3AED; }
-.feature-card[data-page="textcleaner"]:hover .info .title { color: #2ECC71; }
-.feature-card[data-page="qrcode"]:hover .info .title { color: #8e44ad; }
-
 /* ============================================
-   🔙 BACK BAR
+   BACK BAR
    ============================================ */
 .back-bar {
   display: flex;
@@ -369,18 +339,9 @@ body {
 .back-bar button:hover svg { transform: translateX(-3px); }
 
 .back-bar .page-title { font-size: 14px; font-weight: 700; color: var(--text); }
-.back-bar .page-shortcut {
-  margin-left: auto;
-  font-size: 10px;
-  color: #aaa;
-  background: #f0f0f0;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-family: monospace;
-}
 
 /* ============================================
-   🎯 ACTION BUTTONS
+   ACTION BUTTONS
    ============================================ */
 .action-btn {
   display: flex;
@@ -400,7 +361,6 @@ body {
   overflow: hidden;
 }
 
-/* Hiệu ứng ripple khi hover */
 .action-btn::after {
   content: '';
   position: absolute;
@@ -425,7 +385,7 @@ body {
 .action-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
-  border-color: rgba(213, 43, 30, 0.1);
+  border-color: rgba(213, 43, 30, 0.08);
 }
 
 .action-btn .icon-circle {
@@ -485,7 +445,7 @@ body {
 .action-btn .btn-sub { font-size: 11px; font-weight: 600; opacity: 0.85; }
 
 /* ============================================
-   📝 FORM ELEMENTS
+   FORM ELEMENTS
    ============================================ */
 .form-group { margin-bottom: 12px; }
 .form-group label {
@@ -520,140 +480,7 @@ body {
 .form-group select { cursor: pointer; }
 
 /* ============================================
-   💫 STATUS BAR
-   ============================================ */
-.status-bar {
-  margin-top: 12px;
-  padding: 8px 12px;
-  background: var(--surface);
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-muted);
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
-  flex-shrink: 0;
-  border: 1px solid rgba(255,255,255,0.8);
-  animation: statusGlow 4s ease-in-out infinite;
-  transition: all 0.3s;
-}
-
-.status-bar:hover {
-  background: linear-gradient(135deg, var(--surface), #f8f5ff);
-  border-color: rgba(213, 43, 30, 0.08);
-}
-
-@keyframes statusGlow {
-  0%, 100% { 
-    background: var(--surface);
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
-  }
-  30% { 
-    background: linear-gradient(135deg, var(--surface), #f8f5ff);
-    box-shadow: inset 0 2px 8px rgba(213, 43, 30, 0.05);
-  }
-  70% { 
-    background: linear-gradient(135deg, var(--surface), #fff8f0);
-    box-shadow: inset 0 2px 8px rgba(255, 107, 0, 0.05);
-  }
-}
-
-.status-bar .dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  animation: dotDance 4s ease-in-out infinite;
-}
-
-@keyframes dotDance {
-  0%, 100% { 
-    background: #22c55e; 
-    box-shadow: 0 0 0 0 rgba(34,197,94,0.3);
-    transform: scale(1);
-  }
-  20% { 
-    background: #3b82f6; 
-    box-shadow: 0 0 0 4px rgba(59,130,246,0.15);
-    transform: scale(1.2);
-  }
-  40% { 
-    background: #8b5cf6; 
-    box-shadow: 0 0 0 4px rgba(139,92,246,0.15);
-    transform: scale(1);
-  }
-  60% { 
-    background: #f59e0b; 
-    box-shadow: 0 0 0 4px rgba(245,158,11,0.15);
-    transform: scale(1.2);
-  }
-  80% { 
-    background: #ec4899; 
-    box-shadow: 0 0 0 4px rgba(236,72,153,0.15);
-    transform: scale(1);
-  }
-}
-
-/* ============================================
-   ⌨️ SHORTCUT
-   ============================================ */
-.shortcut-badge {
-  font-size: 10px;
-  color: #aaa;
-  background: #f0f0f0;
-  padding: 2px 8px;
-  border-radius: 12px;
-  margin-right: 4px;
-  font-weight: 600;
-  font-family: monospace;
-  flex-shrink: 0;
-}
-
-.shortcut-hint {
-  margin-top: 8px;
-  padding: 6px 12px;
-  background: #f8f9fa;
-  border-radius: 6px;
-  font-size: 11px;
-  color: #999;
-  text-align: center;
-  border: 1px solid #eee;
-  animation: hintBreath 4s ease-in-out infinite;
-  transition: all 0.3s;
-}
-
-.shortcut-hint:hover {
-  border-color: rgba(213, 43, 30, 0.15);
-  background: linear-gradient(135deg, #f8f9fa, #fef5f5);
-}
-
-@keyframes hintBreath {
-  0%, 100% { border-color: #eee; }
-  50% { border-color: rgba(213, 43, 30, 0.1); }
-}
-
-.shortcut-hint kbd {
-  background: linear-gradient(135deg, #fff, #f0f0f0);
-  padding: 1px 6px;
-  border-radius: 3px;
-  font-size: 10px;
-  margin: 0 2px;
-  font-family: monospace;
-  border: 1px solid #ddd;
-  transition: all 0.3s;
-}
-.shortcut-hint kbd:hover {
-  transform: translateY(-2px) scale(1.05);
-  border-color: var(--dtu-red);
-  color: var(--dtu-red);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-}
-
-/* ============================================
-   📄 PAGE ENTER
+   PAGE ENTER
    ============================================ */
 .page-enter { animation: pageSlide 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
 
@@ -663,144 +490,7 @@ body {
 }
 
 /* ============================================
-   🏛️ DTU SKILL BUTTON
-   ============================================ */
-.dtu-skill-btn {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  padding: 12px 14px;
-  border: none;
-  border-radius: var(--radius);
-  cursor: pointer;
-  text-align: left;
-  background: var(--surface);
-  margin-bottom: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  border: 1px solid rgba(255,255,255,0.8);
-  position: relative;
-  overflow: hidden;
-}
-
-/* Hiệu ứng gạch dưới chạy */
-.dtu-skill-btn::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: -100%;
-  width: 100%;
-  height: 3px;
-  background: linear-gradient(90deg, var(--dtu-red), var(--stu-orange));
-  transition: left 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.dtu-skill-btn:hover::after {
-  left: 0;
-}
-
-.dtu-skill-btn:active { transform: scale(0.97); }
-
-.dtu-skill-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  border-color: rgba(213, 43, 30, 0.1);
-  background: linear-gradient(135deg, var(--surface), #faf8ff);
-}
-
-.dtu-skill-btn .dtu-skill-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 12px;
-  flex-shrink: 0;
-  font-size: 18px;
-  color: #fff;
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.dtu-skill-btn:hover .dtu-skill-icon { 
-  transform: scale(1.05) rotate(-4deg); 
-}
-
-.dtu-skill-btn .dtu-skill-info { display: flex; flex-direction: column; flex: 1; min-width: 0; }
-.dtu-skill-btn .dtu-skill-title { 
-  font-size: 14px; 
-  font-weight: 700; 
-  color: var(--text); 
-  transition: color 0.3s; 
-}
-.dtu-skill-btn:hover .dtu-skill-title { color: var(--dtu-red); }
-.dtu-skill-btn .dtu-skill-desc { 
-  font-size: 11px; 
-  font-weight: 500; 
-  color: var(--text-muted); 
-  white-space: nowrap; 
-  overflow: hidden; 
-  text-overflow: ellipsis; 
-}
-.dtu-skill-btn .dtu-skill-arrow { 
-  color: #ccc; 
-  font-size: 18px; 
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); 
-  flex-shrink: 0; 
-}
-.dtu-skill-btn:hover .dtu-skill-arrow { 
-  transform: translateX(6px) scale(1.1); 
-  color: var(--text); 
-}
-
-#dtu-skill-content { animation: fadeIn 0.25s ease-out forwards; }
-@keyframes fadeIn {
-  0% { opacity: 0; transform: translateY(8px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-
-/* ============================================
-   🧹 TEXT CLEANER
-   ============================================ */
-.textcleaner-container { display: flex; flex-direction: column; gap: 2px; }
-.textcleaner-container textarea { font-size: 13px; line-height: 1.6; font-family: 'Inter', sans-serif; }
-
-#tc-detection {
-  background: #f8f9fa;
-  border: 1px solid #e9ecef;
-  border-radius: var(--radius-sm);
-  padding: 8px 12px;
-  font-size: 12px;
-  color: var(--text-muted);
-  line-height: 1.5;
-}
-#tc-detection-text { font-weight: 500; color: var(--text); }
-
-#tc-status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #22c55e;
-  animation: pulse 2s infinite;
-  flex-shrink: 0;
-}
-@keyframes pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.85); }
-}
-
-#tc-stats { font-size: 11px; color: var(--text-muted); font-weight: 400; }
-
-#tc-clean-btn:hover { 
-  transform: translateY(-2px); 
-  box-shadow: 0 8px 24px rgba(46,204,113,0.3); 
-}
-#tc-copy-btn:hover { 
-  transform: translateY(-2px); 
-  box-shadow: var(--shadow-hover); 
-}
-
-/* ============================================
-   🍞 TOAST
+   TOAST
    ============================================ */
 #global-toast {
   position: fixed;
@@ -823,12 +513,11 @@ body {
 }
 
 /* ============================================
-   📱 RESPONSIVE
+   RESPONSIVE
    ============================================ */
 @media (max-width: 400px) {
   body { width: 340px; }
   .feature-card .info .desc { font-size: 10px; }
   .action-btn .btn-heading { font-size: 13px; }
   .action-btn .btn-sub { font-size: 10px; }
-  .dtu-skill-btn .dtu-skill-desc { font-size: 10px; }
 }

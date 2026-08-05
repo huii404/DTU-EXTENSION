@@ -1,0 +1,100 @@
+/* ============================================
+   Multi Tool Hub - DTU Student Hub Styles
+   ============================================ */
+
+.dtu-hub {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ===== SKILL BUTTON ===== */
+.dtu-skill-btn {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 12px 14px;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  text-align: left;
+  background: var(--surface);
+  margin-bottom: 8px;
+  box-shadow: var(--shadow);
+  border-left: 4px solid transparent;
+}
+
+.dtu-skill-btn:active {
+  transform: scale(0.97);
+}
+
+.dtu-skill-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+.dtu-skill-btn .dtu-skill-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  flex-shrink: 0;
+  font-size: 18px;
+  color: white;
+}
+
+.dtu-skill-btn .dtu-skill-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.dtu-skill-btn .dtu-skill-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+
+.dtu-skill-btn .dtu-skill-desc {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dtu-skill-btn .dtu-skill-arrow {
+  color: #ccc;
+  font-size: 18px;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.dtu-skill-btn:hover .dtu-skill-arrow {
+  transform: translateX(4px);
+  color: #999;
+}
+
+/* ===== SKILL CONTENT ===== */
+#dtu-skill-content {
+  animation: fadeIn 0.25s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 400px) {
+  .dtu-skill-btn .dtu-skill-desc {
+    font-size: 10px;
+  }
+}

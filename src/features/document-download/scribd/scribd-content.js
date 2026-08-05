@@ -27,7 +27,7 @@ function startScribdAutoPDF() {
   // Inject viewer styles
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = chrome.runtime.getURL('src/styles/viewer-styles.css');
+  link.href = chrome.runtime.getURL('styles/viewer-styles.css');
   document.head.appendChild(link);
 
   const overlay = document.createElement('div');
