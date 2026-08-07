@@ -6,13 +6,6 @@ html, body {
 
 #upgrade-overlay,
 .banner-wrapper,
-[class*="paywall"],
-[class*="overlay"],
-#page-container-wrapper + div,
-.advertisement {
-  display: none !important;
-  z-index: -9999 !important;
-}
 
 .pf, .pc, #document-wrapper {
   display: block !important;

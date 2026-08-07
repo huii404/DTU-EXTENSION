@@ -132,7 +132,40 @@ function attachHomeEvents() {
   });
 }
 
-// ---------- INIT ----------
+// ---------- LIVE CLOCK & SVG PULLER INTERACTION ----------
+function initLiveClock() {
+  const clockElement = document.getElementById('clockTime');
+  const pullerElement = document.getElementById('timePuller');
+
+  if (!clockElement) return;
+
+  function updateClock() {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    clockElement.textContent = `${hours}:${minutes}:${seconds}`;
+  }
+
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  // Hiệu ứng giật dây khi người dùng click vào nhân vật
+  if (pullerElement) {
+    pullerElement.addEventListener('click', () => {
+      pullerElement.style.transform = 'translateY(-50%) translateX(-8px) scale(1.1)';
+      setTimeout(() => {
+        pullerElement.style.transform = '';
+      }, 200);
+
+      if (typeof showToast === 'function') {
+        showToast('💪 Đã gồng hết sức níu giữ thời gian!', 'info', 1500);
+      }
+    });
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   navigateTo('home');
+  initLiveClock();
 });

@@ -142,11 +142,6 @@
   margin-bottom: 0 !important;
 }
 
-#doc-skill-body .action-btn::before,
-#doc-skill-body .action-btn::after {
-  display: none !important;
-}
-
 #doc-skill-body .action-btn:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-hover) !important;

@@ -180,9 +180,7 @@
   .tt-skill-btn .tt-skill-desc {
     font-size: 10px;
   }
-  #tt-skill-body .action-btn .btn-heading {
-    font-size: 13px;
-  }
+.btn-heading { font-size: 13px; }
   #tt-skill-body .action-btn .btn-sub {
     font-size: 10px;
   }
