@@ -1,0 +1,29 @@
+<div class="form-group">
+  <label>
+    <span class="icon">📆</span> Phạm vi lịch:
+  </label>
+  <select id="dtu-schedule-range">
+    <option value="MONTH" selected>📅 Lịch tháng này (Nhanh & Nhẹ)</option>
+    <option value="WEEK">📆 Lịch tuần này</option>
+    <option value="SEMESTER">🎓 Cả học kỳ</option>
+  </select>
+</div>
+
+<div class="form-group">
+  <label>
+    <span class="icon">📊</span> Định dạng file xuất:
+  </label>
+  <select id="dtu-schedule-format">
+    <option value="CSV" selected>📊 File Excel (.CSV Tiếng Việt)</option>
+    <option value="ICS">📲 File .ICS (Google/Apple Calendar)</option>
+    <option value="PDF">📄 File .PDF (Dàn trang in)</option>
+  </select>
+</div>
+
+<button id="dtu-schedule-confirm-btn" class="action-btn primary" style="background: linear-gradient(135deg, #27ae60, #2ecc71); margin-top: 10px;">
+  <div class="icon-circle">✓</div>
+  <div class="btn-info">
+    <span class="btn-heading">Xuất File Excel Lịch Học</span>
+    <span class="btn-sub">Tự động cào dữ liệu từ MyDTU</span>
+  </div>
+</button>

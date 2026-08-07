@@ -3,9 +3,23 @@
   "name": "Multi Tool Hub",
   "version": "2.0.0",
   "description": "Tập hợp tiện ích: Đánh giá DTU nhanh, Tải tài liệu Studocu không watermark...",
+  "icons": {
+    "16": "icons/a.png",
+    "32": "icons/b.png",
+    "48": "icons/c.png",
+    "128": "icons/d.png"
+  },
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_icon": {
+      "16": "icons/a.png",
+      "32": "icons/b.png",
+      "48": "icons/c.png",
+      "128": "icons/d.png"
+    }
+  },
   "permissions": [
     "activeTab",
-
     "scripting",
     "cookies",
     "downloads",
@@ -20,13 +34,10 @@
     "*://*.scribd.vn/*",
     "<all_urls>"
   ],
-  "action": {
-    "default_popup": "src/popup/popup.html"
-  },
   "content_scripts": [
     {
       "matches": [
-        "https://mydtu.duytan.edu.vn/sites/index.aspx?p=home_ratingform*"
+        "https://mydtu.duytan.edu.vn/sites/index.aspx*"
       ],
       "js": [
         "src/features/dtu-univer/dtu-content.js"
@@ -74,12 +85,15 @@
         "src/features/text-tools/comparator/comparator.js",
         "src/features/dtu-univer/dtu-univer.html",
         "src/features/dtu-univer/skills/rating/rating.html",
+        "src/features/dtu-univer/skills/schedule/schedule.html",
         "src/features/qrcode/qrcode.html",
         "src/features/document-download/document-download.html",
         "src/features/document-download/studocu/studocu.html",
         "src/features/document-download/scribd/scribd.html"
       ],
-      "matches": ["<all_urls>"]
+      "matches": [
+        "<all_urls>"
+      ]
     }
   ]
 }

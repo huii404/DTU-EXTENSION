@@ -13,6 +13,15 @@ const DTU_SKILLS = {
     htmlFile: 'skills/rating/rating.html',
     jsFile: 'skills/rating/rating.js',
   },
+  schedule: {
+    id: 'schedule',
+    title: 'Xuất lịch học MyDTU',
+    desc: 'Tải lịch học kỳ/tháng/tuần dạng .ICS, .CSV, .PDF',
+    icon: '📅',
+    color: 'linear-gradient(135deg, #27ae60, #2ecc71)',
+    htmlFile: 'skills/schedule/schedule.html',
+    jsFile: 'skills/schedule/schedule.js',
+  }
 };
 
 // Cache HTML của các skill
