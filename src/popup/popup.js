@@ -7,7 +7,7 @@ const PAGES = {
 };
 
 let currentPage = 'home';
-let previousPage = null;  // ✅ Lưu trang trước đó
+let previousPage = null; 
 
 function navigateTo(pageName) {
   const container = document.getElementById('app-container');

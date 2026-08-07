@@ -1,6 +1,5 @@
-// ============================================
+
 // SCREENSHOT MODULE - TỐI ƯU TỐC ĐỘ (NATIVE + WEBP)
-// ============================================
 
 const SCREENSHOT_CONFIG = {
   defaultFormat: 'webp',    // Chuyển sang webp để sinh file nhanh & nhẹ hơn
@@ -232,9 +231,7 @@ PAGES.screenshot = {
   title: '📸 Chụp ảnh Web'
 };
 
-// ============================================
 // HÀM CAPTURE TRÊN PAGE (Injected Script)
-// ============================================
 
 function captureWebContentFullOptimized(mode, format, quality, scale, maxDim) {
   return new Promise((resolve) => {

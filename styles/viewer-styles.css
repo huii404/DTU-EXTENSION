@@ -77,10 +77,7 @@ body > *:not(#clean-viewer-container) {
   max-width: none !important;
   max-height: none !important;
 }
-
-/* ============================================
-   Print Styles
-   ============================================ */
+ /* Print Styles */
 
 @media print {
   @page {

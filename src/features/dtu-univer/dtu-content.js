@@ -1,6 +1,4 @@
-// ============================================
 // DTU CONTENT SCRIPT - HANDLE Q53 & AUTO RATE
-// ============================================
 
 if (!window.dtuMasterInjected) {
   window.dtuMasterInjected = true;

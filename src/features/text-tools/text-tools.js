@@ -1,6 +1,4 @@
-// ============================================
 // TEXT TOOLS - MAIN MODULE
-// ============================================
 
 // Đảm bảo PAGES toàn cục luôn tồn tại
 if (typeof window.PAGES === 'undefined') {
@@ -27,9 +25,9 @@ const TEXT_TOOLS_SKILLS = {
   }
 };
 
-// ============================================
+
 // HTML TEMPLATES
-// ============================================
+
 const SKILL_HTML = {
   cleaner: `
 <div class="cleaner-container" style="border:none !important; padding:0; margin:0;">
@@ -128,9 +126,7 @@ const TEXT_TOOLS_HTML = `
 </div>
 `;
 
-// ============================================
 // ATTACH EVENTS & EVENT LOGIC
-// ============================================
 function attachCleanerEvents() {
   console.log('[Cleaner] Initializing events');
   const output = document.getElementById('cleaner-output');
@@ -148,9 +144,9 @@ function attachCleanerEvents() {
 
   let rawText = '';
 
-  // ============================================
+
 // LOGIC LỌC THÔNG MINH MỚI
-// ============================================
+
 function smartCleanText(text) {
   if (!text) return '';
 
@@ -178,9 +174,8 @@ function smartCleanText(text) {
     return ' ';
   });
 
-  // =========================================================================
   // BƯỚC 3: SMART TRIM ĐẦU - CUỐI CHO TỪNG DÒNG
-  // =========================================================================
+
   return cleaned
     .split('\n')
     .map(line => {
@@ -212,9 +207,8 @@ function smartCleanText(text) {
     .trim();
 }
 
-// ============================================
 // HÀM PROCESSTEXT ĐƯỢC CẬP NHẬT
-// ============================================
+
 async function processText(text) {
   if (!text || !text.trim()) {
     if (typeof showToast === 'function') showToast('📝 Không có dữ liệu', 'info');
@@ -475,9 +469,9 @@ function attachComparatorEvents() {
   updateStatus();
 }
 
-// ============================================
+
 // BẮT BUỘC: ĐĂNG KÝ CÁC TRANG VÀO PAGES
-// ============================================
+
 PAGES['text-tools'] = {
   render: function () {
     return TEXT_TOOLS_HTML;
@@ -529,7 +523,7 @@ PAGES['text-tools'] = {
   title: '🧹 Text Tools'
 };
 
-// ✅ Đăng ký trực tiếp Cleaner và Comparator vào PAGES để tránh lỗi "No attachEvents in PAGES"
+// Đăng ký trực tiếp Cleaner và Comparator vào PAGES để tránh lỗi "No attachEvents in PAGES"
 PAGES['cleaner'] = {
   render: function () {
     return SKILL_HTML.cleaner;

@@ -1,6 +1,4 @@
-// ============================================
 // DOCUMENT DOWNLOAD - MENU CHÍNH (NHÚNG HTML TRỰC TIẾP)
-// ============================================
 
 const DOC_DOWNLOAD_HTML = `
 <div class="doc-download-container">
@@ -28,16 +26,12 @@ const DOC_DOWNLOAD_HTML = `
     <span class="doc-skill-arrow">›</span>
   </button>
 
-  <!-- Skill content -->
-  <div id="doc-skill-content" style="display:none; margin-top:12px; padding-top:12px;">
-    <div id="doc-skill-body"></div>
-  </div>
 </div>
 `;
 
-// ============================================
+
 // DANH SÁCH SKILL CON
-// ============================================
+
 const DOC_SKILLS = {
   studocu: {
     id: 'studocu',
@@ -57,9 +51,9 @@ const DOC_SKILLS = {
   },
 };
 
-// ============================================
+
 // POPUP PAGE
-// ============================================
+
 PAGES['document-download'] = {
   render: function() {
     return DOC_DOWNLOAD_HTML;

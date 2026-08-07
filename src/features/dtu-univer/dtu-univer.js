@@ -1,8 +1,5 @@
-
-
-// ============================================
 // DANH SÁCH SKILL CỦA DTU
-// ============================================
+
 const DTU_SKILLS = {
   rating: {
     id: 'rating',
@@ -27,9 +24,9 @@ const DTU_SKILLS = {
 // Cache HTML của các skill
 const skillHTMLCache = {};
 
-// ============================================
+
 // LOAD SKILL HTML
-// ============================================
+
 async function loadSkillHTML(skillId) {
   if (skillHTMLCache[skillId]) return skillHTMLCache[skillId];
   
@@ -48,9 +45,9 @@ async function loadSkillHTML(skillId) {
   }
 }
 
-// ============================================
+
 // LOAD SKILL JS
-// ============================================
+
 async function loadSkillJS(skillId) {
   const skill = DTU_SKILLS[skillId];
   if (!skill) return null;
@@ -65,9 +62,9 @@ async function loadSkillJS(skillId) {
   }
 }
 
-// ============================================
+
 // LOAD HUB HTML
-// ============================================
+
 let dtuHubHTML = '';
 
 async function loadDTUHubHTML() {
@@ -100,9 +97,9 @@ async function loadDTUHubHTML() {
   }
 }
 
-// ============================================
+
 // POPUP PAGE - DTU STUDENT HUB
-// ============================================
+
 PAGES.dtu = {
   render: function() {
     return dtuHubHTML || '<p>Đang tải...</p>';
@@ -177,7 +174,7 @@ PAGES.dtu = {
   title: '🏛️ SINHVIEN DTU'
 };
 
-// ============================================
+
 // LOAD HTML KHI KHỞI ĐỘNG
-// ============================================
+
 loadDTUHubHTML();

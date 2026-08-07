@@ -1,8 +1,4 @@
-
-
-// ============================================
 // CẤU HÌNH MẶC ĐỊNH
-// ============================================
 const QR_CONFIG = {
   defaultSize: 256,
   defaultColor: '#000000',
@@ -10,9 +6,9 @@ const QR_CONFIG = {
   maxChars: 200,   // ✅ Hiển thị cảnh báo khi vượt quá
 };
 
-// ============================================
+
 // QR CODE ENGINE
-// ============================================
+
 const QREngine = {
   API_URL: 'https://api.qrserver.com/v1/create-qr-code/',
   _currentDataUrl: null,
@@ -62,9 +58,9 @@ const QREngine = {
   }
 };
 
-// ============================================
+
 // LOAD HTML TEMPLATE
-// ============================================
+
 let qrCodeHTML = '';
 
 async function loadQRCodeHTML() {
@@ -95,9 +91,9 @@ async function loadQRCodeHTML() {
   }
 }
 
-// ============================================
+
 // POPUP PAGE
-// ============================================
+
 PAGES.qrcode = {
   render: function() {
     return qrCodeHTML || '<p>Đang tải...</p>';
@@ -300,7 +296,7 @@ PAGES.qrcode = {
   title: '📱 Tạo mã QR'
 };
 
-// ============================================
+
 // LOAD HTML KHI KHỞI ĐỘNG
-// ============================================
+
 loadQRCodeHTML();

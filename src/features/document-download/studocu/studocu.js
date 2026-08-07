@@ -1,6 +1,5 @@
-// ============================================
+
 // STUDOCU - NHÚNG HTML TRỰC TIẾP
-// ============================================
 
 const STUDOCU_HTML = `
 <div class="studocu-container" style="border: none !important; padding: 0; margin: 0;">
@@ -46,9 +45,9 @@ const STUDOCU_HTML = `
 </div>
 `;
 
-// ============================================
+
 // POPUP PAGE - STUDOCU
-// ============================================
+
 PAGES.studocu = {
   render: function() {
     return STUDOCU_HTML;
@@ -189,9 +188,8 @@ PAGES.studocu = {
   title: '📚 Studocu Tools'
 };
 
-// ============================================
+
 // HÀM CHỤP ẢNH (injected vào trang)
-// ============================================
 function captureVisiblePages() {
   console.log('[Studocu] captureVisiblePages running');
   const visiblePages = [];
@@ -248,9 +246,9 @@ function captureVisiblePages() {
   return imagesToDownload;
 }
 
-// ============================================
+
 // HÀM TẠO PDF VIEWER (injected vào trang)
-// ============================================
+
 function runCleanViewerInside() {
   console.log('[Studocu] runCleanViewerInside running');
   const pages = document.querySelectorAll('div[data-page-index]');

@@ -1,4 +1,3 @@
-/* src/features/text-tools/text-tools.css */
 @import url('../popup/popup.css');
 
 .text-tools-container {
@@ -99,7 +98,7 @@
 /* ===== SKILL CONTENT ===== */
 #tt-skill-content {
   animation: fadeIn 0.25s ease-out forwards;
-  border: none !important;        /* ✅ Xóa border */
+  border: none !important;       
   padding-top: 12px;
   margin-top: 12px;
 }
@@ -114,7 +113,7 @@
   100% { opacity: 1; transform: translateY(0); }
 }
 
-/* ✅ RESET: Xóa mọi border trong skill con */
+
 #tt-skill-body {
   width: 100%;
   border: none !important;
@@ -162,13 +161,13 @@
   box-shadow: var(--shadow-hover) !important;
 }
 
-/* ✅ Loại bỏ mọi border không mong muốn */
+/* Loại bỏ mọi border không mong muốn */
 .text-tools-container,
 .text-tools-container * {
   border: none !important;
 }
 
-/* ✅ Responsive */
+/* Responsive */
 @media (max-width: 400px) {
   .tt-skill-btn {
     padding: 12px 14px;
