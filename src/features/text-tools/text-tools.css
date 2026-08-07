@@ -1,71 +1,80 @@
+/* src/features/text-tools/text-tools.css */
+@import url('../popup/popup.css');
 
-.doc-download-container {
+.text-tools-container {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-}
-
-/* Styling cho ô nhập URL Scribd */
-.scribd-container #scribd-url-input:focus {
-  outline: none;
-  border-color: #0077B5 !important;
-  box-shadow: 0 0 0 3px rgba(0, 119, 181, 0.15) !important;
+  gap: 8px;
+  padding: 4px 0;
 }
 
 /* ===== SKILL BUTTON ===== */
-.doc-skill-btn {
+.tt-skill-btn {
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 12px 14px;
+  padding: 14px 16px;
   border: none;
   border-radius: var(--radius);
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   text-align: left;
   background: var(--surface);
-  margin-bottom: 8px;
   box-shadow: var(--shadow);
   border-left: 4px solid transparent;
+  position: relative;
+  overflow: hidden;
+  gap: 12px;
+  margin-bottom: 8px;
 }
 
-.doc-skill-btn:active {
+.tt-skill-btn:last-child {
+  margin-bottom: 0;
+}
+
+.tt-skill-btn:active {
   transform: scale(0.97);
 }
 
-.doc-skill-btn:hover {
-  transform: translateY(-2px);
+.tt-skill-btn:hover {
+  transform: translateY(-3px);
   box-shadow: var(--shadow-hover);
 }
 
-.doc-skill-btn .doc-skill-icon {
-  width: 40px;
-  height: 40px;
+/* ===== ICON ===== */
+.tt-skill-btn .tt-skill-icon {
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 12px;
   flex-shrink: 0;
-  font-size: 18px;
-  color: white;
+  font-size: 20px;
+  color: #fff;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.doc-skill-btn .doc-skill-info {
+.tt-skill-btn:hover .tt-skill-icon {
+  transform: scale(1.06) rotate(-3deg);
+}
+
+/* ===== INFO ===== */
+.tt-skill-btn .tt-skill-info {
   display: flex;
   flex-direction: column;
   flex: 1;
   min-width: 0;
 }
 
-.doc-skill-btn .doc-skill-title {
+.tt-skill-btn .tt-skill-title {
   font-size: 14px;
   font-weight: 700;
   color: var(--text);
   margin-bottom: 2px;
 }
 
-.doc-skill-btn .doc-skill-desc {
+.tt-skill-btn .tt-skill-desc {
   font-size: 11px;
   font-weight: 500;
   color: var(--text-muted);
@@ -74,28 +83,29 @@
   text-overflow: ellipsis;
 }
 
-.doc-skill-btn .doc-skill-arrow {
+/* ===== ARROW ===== */
+.tt-skill-btn .tt-skill-arrow {
   color: #ccc;
-  font-size: 18px;
-  transition: transform 0.2s;
+  font-size: 20px;
+  transition: all 0.3s;
   flex-shrink: 0;
 }
 
-.doc-skill-btn:hover .doc-skill-arrow {
-  transform: translateX(4px);
-  color: #999;
+.tt-skill-btn:hover .tt-skill-arrow {
+  transform: translateX(6px) scale(1.15);
+  color: var(--text);
 }
 
 /* ===== SKILL CONTENT ===== */
-#doc-skill-content {
+#tt-skill-content {
   animation: fadeIn 0.25s ease-out forwards;
-  border: none !important;
+  border: none !important;        /* ✅ Xóa border */
   padding-top: 12px;
   margin-top: 12px;
 }
 
-#doc-skill-content::before,
-#doc-skill-content::after {
+#tt-skill-content::before,
+#tt-skill-content::after {
   display: none !important;
 }
 
@@ -105,15 +115,15 @@
 }
 
 /* ✅ RESET: Xóa mọi border trong skill con */
-#doc-skill-body {
+#tt-skill-body {
   width: 100%;
   border: none !important;
   padding: 0;
   margin: 0;
 }
 
-#doc-skill-body .studocu-container,
-#doc-skill-body .scribd-container {
+#tt-skill-body .cleaner-container,
+#tt-skill-body .comparator-container {
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -123,65 +133,58 @@
   margin: 0 !important;
 }
 
-#doc-skill-body .studocu-container::before,
-#doc-skill-body .studocu-container::after,
-#doc-skill-body .scribd-container::before,
-#doc-skill-body .scribd-container::after {
+#tt-skill-body .cleaner-container::before,
+#tt-skill-body .cleaner-container::after,
+#tt-skill-body .comparator-container::before,
+#tt-skill-body .comparator-container::after {
   display: none !important;
 }
 
 /* ✅ Đồng bộ button trong skill con */
-#doc-skill-body .action-btn {
+#tt-skill-body .action-btn {
   margin-bottom: 8px !important;
   border: none !important;
   border-radius: var(--radius) !important;
   box-shadow: var(--shadow) !important;
 }
 
-#doc-skill-body .action-btn:last-child {
+#tt-skill-body .action-btn:last-child {
   margin-bottom: 0 !important;
 }
 
-#doc-skill-body .action-btn::before,
-#doc-skill-body .action-btn::after {
+#tt-skill-body .action-btn::before,
+#tt-skill-body .action-btn::after {
   display: none !important;
 }
 
-#doc-skill-body .action-btn:hover {
+#tt-skill-body .action-btn:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-hover) !important;
 }
 
-/* ✅ Đồng bộ hint text */
-#doc-skill-body .hint-text {
-  margin-bottom: 10px;
-  font-size: 11px;
-  color: var(--text-muted);
-  text-align: center;
-  font-style: italic;
-  padding: 0;
-}
-
-/* ✅ Status bar */
-.doc-download-container .status-bar {
-  margin-top: 12px;
-}
-
 /* ✅ Loại bỏ mọi border không mong muốn */
-.doc-download-container,
-.doc-download-container * {
+.text-tools-container,
+.text-tools-container * {
   border: none !important;
 }
 
 /* ✅ Responsive */
 @media (max-width: 400px) {
-  .doc-skill-btn .doc-skill-desc {
+  .tt-skill-btn {
+    padding: 12px 14px;
+  }
+  .tt-skill-btn .tt-skill-icon {
+    width: 38px;
+    height: 38px;
+    font-size: 17px;
+  }
+  .tt-skill-btn .tt-skill-desc {
     font-size: 10px;
   }
-  #doc-skill-body .action-btn .btn-heading {
+  #tt-skill-body .action-btn .btn-heading {
     font-size: 13px;
   }
-  #doc-skill-body .action-btn .btn-sub {
+  #tt-skill-body .action-btn .btn-sub {
     font-size: 10px;
   }
 }

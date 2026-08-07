@@ -1,122 +1,78 @@
+// ============================================
+// SCRIBD CONTENT SCRIPT - TỰ ĐỘNG TẠI TRANG
+// ============================================
 
-const CONFIG_SCRIBD = {
-  AUTO_PDF_PARAM: 'banhmi_auto_pdf=1',
-  SCROLL_STEP: 800,
-  SCROLL_INTERVAL: 600,
-  SAME_COUNT_THRESHOLD: 3
-};
+// Lắng nghe lệnh tải từ Popup
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'START_SCRIBD_AUTO_PDF') {
+    processAndExportPDF();
+    sendResponse({ status: 'ok' });
+  }
+});
 
-// Auto-PDF via URL Param
-if (window.location.href.includes(CONFIG_SCRIBD.AUTO_PDF_PARAM)) {
-  console.log('[Scribd Content] Auto-PDF triggered via URL param');
-  
-  const newUrl = window.location.href
-    .replace(/([&?])banhmi_auto_pdf=1&?/, '$1')
-    .replace(/[&?]$/, '');
-  window.history.replaceState({}, document.title, newUrl);
+async function processAndExportPDF() {
+  if (document.getElementById('banhmi-loading-overlay')) return;
 
-  setTimeout(startScribdAutoPDF, 1000);
-}
-
-function startScribdAutoPDF() {
-  console.log('[Scribd Content] Starting auto PDF process');
-  
-  // Inject viewer styles
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = chrome.runtime.getURL('styles/viewer-styles.css');
-  document.head.appendChild(link);
-
+  // 1. Hiện Overlay thông báo cho người dùng biết Extension đang làm việc
   const overlay = document.createElement('div');
-  overlay.id = 'banhmi-overlay-status';
+  overlay.id = 'banhmi-loading-overlay';
   overlay.style.cssText = `
-    position: fixed; top: 20px; right: 20px;
-    background: #0077B5; color: white;
-    padding: 15px 25px; border-radius: 10px;
-    font-family: sans-serif; font-weight: bold;
-    z-index: 999999; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    transition: opacity 0.3s ease;
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.75); color: white; z-index: 9999999;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-family: sans-serif; font-size: 16px; font-weight: bold;
   `;
-  overlay.innerText = '🚀 Đang tự động load toàn trang để tạo PDF...';
+  overlay.innerHTML = `
+    <div style="background: #0077B5; padding: 20px 30px; border-radius: 12px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+      <div style="font-size: 24px; margin-bottom: 10px;">⏳ Đang xử lý tài liệu...</div>
+      <div id="banhmi-status-text" style="font-size: 14px; opacity: 0.9;">Đang tải toàn bộ các trang...</div>
+    </div>
+  `;
   document.body.appendChild(overlay);
 
-  let oldScrollY = -1;
-  let sameCount = 0;
+  const statusText = document.getElementById('banhmi-status-text');
 
-  const scrollInterval = setInterval(() => {
-    window.scrollBy(0, CONFIG_SCRIBD.SCROLL_STEP);
+  // 2. Xóa sạch Paywall, Quảng cáo & Blur (Mờ)
+  const removePaywall = () => {
+    const selectors = [
+      '.paywall', '.overlay', '.banner', '.upsell',
+      '.premium-banner', '.subscribe-banner', '.ad-container',
+      '[class*="paywall"]', '[class*="blur"]', '.auto__doc_page_webpack_doc_page_blur_promos'
+    ];
+    selectors.forEach(sel => document.querySelectorAll(sel).forEach(el => el.remove()));
 
-    if (window.scrollY === oldScrollY) {
-      sameCount++;
-      if (sameCount >= CONFIG_SCRIBD.SAME_COUNT_THRESHOLD) {
-        clearInterval(scrollInterval);
-        overlay.innerText = '✅ Đã tải xong! Đang chuẩn bị PDF...';
-        setTimeout(() => {
-          overlay.style.opacity = '0';
-          setTimeout(() => overlay.remove(), 300);
-          
-          // Gọi hàm tạo PDF từ popup logic
-          if (typeof runScribdPDFWithLibraries === 'function') {
-            runScribdPDFWithLibraries();
-          } else {
-            alert('⚠️ Vui lòng dùng nút "Tải File PDF" trong popup để tạo PDF!');
-          }
-        }, 1000);
+    document.querySelectorAll('*').forEach(el => {
+      const style = window.getComputedStyle(el);
+      if (style.filter && style.filter.includes('blur')) {
+        el.style.filter = 'none';
+        el.style.webkitFilter = 'none';
       }
-    } else {
-      sameCount = 0;
-      oldScrollY = window.scrollY;
-    }
-  }, CONFIG_SCRIBD.SCROLL_INTERVAL);
-}
-
-// Xóa watermark/paywall khi trang load
-function removeScribdOverlays() {
-  const selectors = [
-    '.paywall',
-    '.overlay',
-    '.banner',
-    '.upsell',
-    '.premium-banner',
-    '.subscribe-banner',
-    '.ad-container',
-    '.advertisement',
-    '[class*="paywall"]',
-    '[class*="overlay"]',
-    '[class*="banner"]'
-  ];
-  
-  for (const selector of selectors) {
-    document.querySelectorAll(selector).forEach(el => {
-      el.style.display = 'none';
-      el.style.visibility = 'hidden';
-      el.style.opacity = '0';
-      el.style.zIndex = '-9999';
     });
-  }
-  
-  // Thử xóa blur
-  document.querySelectorAll('*').forEach(el => {
-    const style = window.getComputedStyle(el);
-    if (style.filter && style.filter.includes('blur')) {
-      el.style.filter = 'none';
-      el.style.webkitFilter = 'none';
-    }
+  };
+
+  removePaywall();
+
+  // 3. Tự động cuộn thật nhanh để load hết trang
+  let lastScroll = -1;
+  await new Promise((resolve) => {
+    const timer = setInterval(() => {
+      window.scrollBy(0, 800);
+      removePaywall(); // Xóa liên tục nếu trang nạp thêm paywall mới
+      
+      if (window.scrollY === lastScroll || (window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+        clearInterval(timer);
+        resolve();
+      }
+      lastScroll = window.scrollY;
+    }, 250);
   });
-}
 
-// Chạy khi document load
-if (document.readyState === 'complete') {
-  removeScribdOverlays();
-} else {
-  window.addEventListener('load', removeScribdOverlays);
-}
+  if (statusText) statusText.innerText = '✨ Chuẩn bị xuất file PDF...';
+  window.scrollTo(0, 0);
 
-// Observer để bắt các overlay được thêm sau
-const observer = new MutationObserver(() => {
-  removeScribdOverlays();
-});
-observer.observe(document.body, {
-  childList: true,
-  subtree: true
-});
+  // 4. Kích hoạt hộp thoại In PDF gốc của Chrome
+  setTimeout(() => {
+    overlay.remove();
+    window.print(); // Mở bảng Save as PDF chuẩn nét 100%
+  }, 600);
+}

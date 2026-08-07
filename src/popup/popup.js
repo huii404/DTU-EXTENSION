@@ -99,16 +99,13 @@ function renderHome() {
         </span>
       </button>
 
-      <!-- Text Cleaner -->
-      <button class="feature-card" data-page="textcleaner" style="border-left: 4px solid #2ECC71;">
+      <button class="feature-card" data-page="text-tools" style="border-left: 4px solid #2ECC71;">
         <div class="icon-box" style="background: linear-gradient(135deg, #2ECC71, #27AE60); color:white;">🧹</div>
         <div class="info">
-          <span class="title">Làm sạch Text</span>
-          <span class="desc">Xóa định dạng ẩn, HTML, Markdown, bảng</span>
+          <span class="title">Text Tools</span>
+          <span class="desc">Làm sạch, so sánh, phân tích văn bản</span>
         </div>
-        <span style="display:flex;align-items:center;gap:4px;">
-          <span class="arrow">›</span>
-        </span>
+        <span class="arrow">›</span>
       </button>
 
       <!-- QR Code -->

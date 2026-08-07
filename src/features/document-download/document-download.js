@@ -1,4 +1,39 @@
+// ============================================
+// DOCUMENT DOWNLOAD - MENU CHÍNH (NHÚNG HTML TRỰC TIẾP)
+// ============================================
 
+const DOC_DOWNLOAD_HTML = `
+<div class="doc-download-container">
+  <!-- Studocu -->
+  <button class="doc-skill-btn" data-skill="studocu" style="border-left: 4px solid #FF6B00;">
+    <div class="doc-skill-icon" style="background: linear-gradient(135deg, #FF6B00, #FFB000);">
+      📚
+    </div>
+    <div class="doc-skill-info">
+      <span class="doc-skill-title">Studocu Tools</span>
+      <span class="doc-skill-desc">Tải PDF, xóa watermark, lưu ảnh</span>
+    </div>
+    <span class="doc-skill-arrow">›</span>
+  </button>
+
+  <!-- Scribd -->
+  <button class="doc-skill-btn" data-skill="scribd" style="border-left: 4px solid #0077B5;">
+    <div class="doc-skill-icon" style="background: linear-gradient(135deg, #0077B5, #00A0DC);">
+      📄
+    </div>
+    <div class="doc-skill-info">
+      <span class="doc-skill-title">Scribd Tools</span>
+      <span class="doc-skill-desc">Tải PDF, xóa watermark, lưu ảnh</span>
+    </div>
+    <span class="doc-skill-arrow">›</span>
+  </button>
+
+  <!-- Skill content -->
+  <div id="doc-skill-content" style="display:none; margin-top:12px; padding-top:12px;">
+    <div id="doc-skill-body"></div>
+  </div>
+</div>
+`;
 
 // ============================================
 // DANH SÁCH SKILL CON
@@ -23,52 +58,11 @@ const DOC_SKILLS = {
 };
 
 // ============================================
-// LOAD HTML TEMPLATE
-// ============================================
-let docDownloadHTML = '';
-
-async function loadDocDownloadHTML() {
-  try {
-    const response = await fetch(chrome.runtime.getURL('src/features/document-download/document-download.html'));
-    docDownloadHTML = await response.text();
-  } catch (e) {
-    console.error('Không thể load document-download.html:', e);
-    docDownloadHTML = `
-      <div class="doc-download-container">
-        <button class="doc-skill-btn" data-skill="studocu">
-          <div class="doc-skill-icon" style="background: linear-gradient(135deg, #FF6B00, #FFB000);">📚</div>
-          <div class="doc-skill-info">
-            <span class="doc-skill-title">Studocu Tools</span>
-            <span class="doc-skill-desc">Tải PDF, xóa watermark, lưu ảnh</span>
-          </div>
-          <span class="doc-skill-arrow">›</span>
-        </button>
-        <button class="doc-skill-btn" data-skill="scribd">
-          <div class="doc-skill-icon" style="background: linear-gradient(135deg, #0077B5, #00A0DC);">📄</div>
-          <div class="doc-skill-info">
-            <span class="doc-skill-title">Scribd Tools</span>
-            <span class="doc-skill-desc">Tải PDF, xóa watermark, lưu ảnh</span>
-          </div>
-          <span class="doc-skill-arrow">›</span>
-        </button>
-        <div class="status-bar">
-          <span class="dot"></span>
-          <span>Chọn dịch vụ tài liệu</span>
-        </div>
-        <div id="doc-skill-content" style="display:none;">
-          <div id="doc-skill-body"></div>
-        </div>
-      </div>
-    `;
-  }
-}
-
-// ============================================
 // POPUP PAGE
 // ============================================
 PAGES['document-download'] = {
   render: function() {
-    return docDownloadHTML || '<p>Đang tải...</p>';
+    return DOC_DOWNLOAD_HTML;
   },
 
   attachEvents: function() {
@@ -90,8 +84,6 @@ PAGES['document-download'] = {
 
         // Ẩn danh sách, hiển thị content
         document.querySelectorAll('.doc-skill-btn').forEach(el => el.style.display = 'none');
-        const statusBar = document.querySelector('.status-bar');
-        if (statusBar) statusBar.style.display = 'none';
         container.style.display = 'block';
         
         // Reset body trước khi render
@@ -112,7 +104,6 @@ PAGES['document-download'] = {
               <p style="color: var(--text-muted);">⚠️ Không thể tải ${skill.title}.</p>
               <button class="action-btn secondary" style="margin-top:8px;" onclick="
                 document.querySelectorAll('.doc-skill-btn').forEach(el => el.style.display = 'flex');
-                document.querySelector('.status-bar').style.display = 'flex';
                 document.getElementById('doc-skill-content').style.display = 'none';
                 document.getElementById('doc-skill-body').innerHTML = '';
               ">
@@ -123,16 +114,9 @@ PAGES['document-download'] = {
         }
       });
     });
-
-    // ===== QUAY LẠI: Về menu document-download (không ra home) =====
-    // Lưu ý: Nút back trong popup.js đã xử lý quay về trang trước đó
-    // Nên không cần thêm logic ở đây
   },
 
   title: '📚 Tải tài liệu'
 };
 
-// ============================================
-// LOAD HTML KHI KHỞI ĐỘNG
-// ============================================
-loadDocDownloadHTML();
+console.log('[Document Download] Module loaded (HTML embedded)');

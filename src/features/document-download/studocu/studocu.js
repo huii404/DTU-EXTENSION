@@ -1,35 +1,58 @@
-
-
 // ============================================
-// LOAD HTML TEMPLATE
+// STUDOCU - NHÚNG HTML TRỰC TIẾP
 // ============================================
-let studocuHTML = '';
 
-async function loadStudocuHTML() {
-  try {
-    const response = await fetch(chrome.runtime.getURL('src/features/document-download/studocu/studocu.html'));
-    studocuHTML = await response.text();
-  } catch (e) {
-    console.error('Không thể load studocu.html:', e);
-    studocuHTML = `
-      <div class="studocu-container">
-        <p class="hint-text">(Mẹo: Cuộn chuột tới cuối tài liệu để tải toàn bộ trước khi Tải PDF)</p>
-        <button id="stu-pdf-btn" class="action-btn primary">Tải File PDF</button>
-        <button id="stu-clear-btn" class="action-btn secondary">Xem file & Xóa Watermark</button>
-        <button id="stu-capture-btn" class="action-btn secondary">Lưu thành Ảnh</button>
-      </div>
-    `;
-  }
-}
+const STUDOCU_HTML = `
+<div class="studocu-container" style="border: none !important; padding: 0; margin: 0;">
+  <button id="stu-pdf-btn" class="action-btn primary" style="margin-bottom: 8px; border: none !important;">
+    <div class="icon-circle">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" x2="12" y1="15" y2="3"/>
+      </svg>
+    </div>
+    <div class="btn-info">
+      <span class="btn-heading">Tải File PDF</span>
+      <span class="btn-sub">Tự động dàn trang in sạch watermark</span>
+    </div>
+  </button>
+
+  <button id="stu-clear-btn" class="action-btn secondary" style="margin-bottom: 8px; border: none !important;">
+    <div class="icon-circle">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+        <circle cx="12" cy="12" r="3"/>
+      </svg>
+    </div>
+    <div class="btn-info">
+      <span class="btn-heading">Xem file & Xóa Watermark</span>
+      <span class="btn-sub">Xóa cookie và reload trang</span>
+    </div>
+  </button>
+
+  <button id="stu-capture-btn" class="action-btn secondary" style="margin-bottom: 0; border: none !important;">
+    <div class="icon-circle">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+        <circle cx="12" cy="13" r="4"/>
+      </svg>
+    </div>
+    <div class="btn-info">
+      <span class="btn-heading">Lưu thành Ảnh</span>
+      <span class="btn-sub">Tải trang đang hiển thị (.PNG)</span>
+    </div>
+  </button>
+</div>
+`;
 
 // ============================================
 // POPUP PAGE - STUDOCU
 // ============================================
 PAGES.studocu = {
   render: function() {
-    return studocuHTML || '<p>Đang tải...</p>';
+    return STUDOCU_HTML;
   },
-
   attachEvents: function() {
     // ========== 1. Tải File PDF ==========
     document.getElementById('stu-pdf-btn')?.addEventListener('click', async function() {
@@ -163,7 +186,6 @@ PAGES.studocu = {
       });
     });
   },
-
   title: '📚 Studocu Tools'
 };
 
@@ -428,7 +450,4 @@ function runCleanViewerInside() {
   }, 1000);
 }
 
-// ============================================
-// LOAD HTML KHI KHỞI ĐỘNG
-// ============================================
-loadStudocuHTML();
+console.log('[Studocu] Module loaded (HTML embedded)');

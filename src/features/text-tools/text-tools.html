@@ -1,0 +1,31 @@
+<!-- src/features/text-tools/text-tools.html -->
+<div class="text-tools-container">
+  <!-- Skill 1: Làm sạch -->
+  <button class="tt-skill-btn" data-skill="cleaner" style="border-left: 4px solid #3498db;">
+    <div class="tt-skill-icon" style="background: linear-gradient(135deg, #3498db, #2980b9);">
+      🧹
+    </div>
+    <div class="tt-skill-info">
+      <span class="tt-skill-title">Làm sạch văn bản</span>
+      <span class="tt-skill-desc">Xóa HTML, Markdown, định dạng ẩn</span>
+    </div>
+    <span class="tt-skill-arrow">›</span>
+  </button>
+
+  <!-- Skill 2: So sánh -->
+  <button class="tt-skill-btn" data-skill="comparator" style="border-left: 4px solid #7C3AED;">
+    <div class="tt-skill-icon" style="background: linear-gradient(135deg, #7C3AED, #A78BFA);">
+      🆚
+    </div>
+    <div class="tt-skill-info">
+      <span class="tt-skill-title">So sánh văn bản</span>
+      <span class="tt-skill-desc">So sánh 2 văn bản, tìm từ thêm/bớt</span>
+    </div>
+    <span class="tt-skill-arrow">›</span>
+  </button>
+
+  <!-- Skill content -->
+  <div id="tt-skill-content" style="display:none;">
+    <div id="tt-skill-body"></div>
+  </div>
+</div>

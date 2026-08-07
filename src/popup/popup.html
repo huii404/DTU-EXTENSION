@@ -4,14 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Multi Tool Hub</title>
-  
+
   <!-- Core styles -->
   <link rel="stylesheet" href="popup.css">
-  
+
   <!-- Feature styles -->
   <link rel="stylesheet" href="../features/dtu-univer/dtu-univer.css">
   <link rel="stylesheet" href="../features/qrcode/qrcode.css">
   <link rel="stylesheet" href="../features/document-download/document-download.css">
+  <link rel="stylesheet" href="../features/text-tools/text-tools.css">
 </head>
 <body>
   <div class="popup-header">
@@ -26,21 +27,25 @@
   </div>
 
   <div id="app-container">
-    <!-- Content injected by popup.js -->
   </div>
 
-  <!-- ✅ QUAN TRỌNG: Core + Router load TRƯỚC -->
+  <!-- Core + Router load TRƯỚC -->
   <script src="../core/constants.js"></script>
   <script src="../core/utils.js"></script>
-  <script src="popup.js"></script>  <!-- Định nghĩa PAGES -->
+  <script src="popup.js"></script>
 
-  <!-- ✅ FEATURES: Load SAU khi PAGES đã được định nghĩa -->
+  <!-- FEATURES -->
   <script src="../features/dtu-univer/dtu-univer.js"></script>
+  <script src="../features/document-download/document-download.js"></script>
   <script src="../features/document-download/studocu/studocu.js"></script>
   <script src="../features/document-download/scribd/scribd.js"></script>
-  <script src="../features/document-download/document-download.js"></script>
+  
+  <!-- TEXT TOOLS -->
+  <script src="../features/text-tools/text-tools.js"></script>
+  <script src="../features/text-tools/cleaner/cleaner.js"></script>
+  <script src="../features/text-tools/comparator/comparator.js"></script>
+  
   <script src="../features/screenshot/screenshot.js"></script>
-  <script src="../features/textcleaner/textcleaner.js"></script>
   <script src="../features/qrcode/qrcode.js"></script>
 </body>
 </html>
